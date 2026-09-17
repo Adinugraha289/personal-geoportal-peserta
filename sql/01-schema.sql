@@ -101,7 +101,19 @@ CREATE INDEX IF NOT EXISTS katalog_data_3d_author_idx ON katalog_data_3d (author
 
 -- View baca-saja: join yang sama dengan yang dilakukan kode API, supaya
 -- query ad-hoc tidak perlu menuliskan join berulang.
-CREATE OR REPLACE VIEW v_katalog_2d_lengkap AS
+-- security_invoker = true WAJIB ada di sini.
+--
+-- Bawaannya, view berjalan dengan hak PEMILIKNYA, bukan hak pemanggilnya.
+-- Karena pemilik tabel melewati Row Level Security, view tanpa opsi ini
+-- membuat RLS pada katalog_data_2d dan users tidak berlaku ketika view itu
+-- yang dibaca. Diuji: dengan RLS aktif, peran anon tidak melihat satu baris
+-- pun dari tabel katalog_data_2d, tetapi MASIH melihat baris berakses
+-- 'private' beserta email penulisnya melalui view ini.
+--
+-- Dengan security_invoker = true, view berjalan dengan hak pemanggilnya,
+-- sehingga RLS ikut berlaku.
+CREATE OR REPLACE VIEW v_katalog_2d_lengkap
+WITH (security_invoker = true) AS
 SELECT k.data_2d_id,
        k.layer_name,
        k.akses,

@@ -42,17 +42,46 @@ ALTER TABLE users           ENABLE ROW LEVEL SECURITY;
 ALTER TABLE katalog_data_2d ENABLE ROW LEVEL SECURITY;
 ALTER TABLE katalog_data_3d ENABLE ROW LEVEL SECURITY;
 
+-- View juga perlu ditangani. Bawaannya, view berjalan dengan hak PEMILIKNYA,
+-- bukan hak pemanggilnya. Karena pemilik tabel melewati RLS, view membuat
+-- RLS pada tabel di bawahnya tidak berlaku.
+--
+-- Diuji: dengan RLS aktif pada tabel, peran anon tidak melihat satu baris pun
+-- dari katalog_data_2d, tetapi MASIH melihat baris berakses 'private' beserta
+-- email penulisnya melalui v_katalog_2d_lengkap.
+--
+-- ALTER VIEW aman dijalankan berkali-kali, dan dilewati bila view-nya tidak
+-- ada, supaya berkas ini tetap dapat dijalankan pada database yang tidak
+-- memakai view tersebut.
+DO $$
+BEGIN
+    IF EXISTS (
+        SELECT 1 FROM pg_class c
+        JOIN pg_namespace n ON n.oid = c.relnamespace
+        WHERE n.nspname = 'public'
+          AND c.relname = 'v_katalog_2d_lengkap'
+          AND c.relkind = 'v'
+    ) THEN
+        ALTER VIEW public.v_katalog_2d_lengkap SET (security_invoker = true);
+    END IF;
+END
+$$;
+
 COMMIT;
 
 -- ---------------------------------------------------------------------
 -- Periksa hasilnya. Ketiga baris harus bernilai true.
 -- ---------------------------------------------------------------------
 SELECT
-    c.relname        AS tabel,
-    c.relrowsecurity AS rls
+    c.relname        AS objek,
+    c.relkind        AS jenis,
+    c.relrowsecurity AS rls,
+    c.reloptions    AS opsi
 FROM pg_class c
 JOIN pg_namespace n ON n.oid = c.relnamespace
 WHERE n.nspname = 'public'
-  AND c.relkind = 'r'
-  AND c.relname IN ('users', 'katalog_data_2d', 'katalog_data_3d')
+  AND c.relname IN ('users', 'katalog_data_2d', 'katalog_data_3d', 'v_katalog_2d_lengkap')
 ORDER BY c.relname;
+
+-- Harapan: tiga tabel bernilai rls = true, dan view memuat
+-- security_invoker=true pada kolom opsi.
