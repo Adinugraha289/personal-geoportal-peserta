@@ -34,6 +34,11 @@ Jalankan berurutan. Setiap baris di bawah adalah satu kali tempel dan satu kali 
 | 3 | `03-periksa.sql` | Setelah langkah 2 | Tidak, hanya membaca |
 | 4 | `05-diagnosa-constraint.sql` | Bila ada kegagalan constraint | Tidak, hanya membaca |
 | 5 | `04-postgis-supabase.sql` | Hanya untuk data spasial, baca catatannya | Ya, mengubah `search_path` database |
+| 6 | `06-migrasi-peran-viewer.sql` | Hanya bila database dibuat memakai versi `01-schema.sql` yang lama | Ya, memindahkan akun berperan `editor` |
+
+Berkas nomor 6 hanya diperlukan bila database Anda sudah terlanjur dibuat sebelum peran `editor` dihapus. Sebabnya, `01-schema.sql` memakai `CREATE TABLE IF NOT EXISTS`, sehingga menjalankannya kembali **tidak** mengubah tabel yang sudah ada.
+
+Akibat bila berkas itu tidak dijalankan pada database lama: akun yang berperan `editor` masih dapat login, tetapi ditolak di seluruh endpoint katalog dengan `403`, karena `lib/auth/roles.js` tidak lagi mengenal peran itu.
 
 Langkah 1 sampai 3 sudah cukup untuk membuat portal berjalan dengan login dan Kelola Akun.
 
