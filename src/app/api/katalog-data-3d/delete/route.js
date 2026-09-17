@@ -12,8 +12,20 @@ export async function DELETE(request) {
     }
 
     try {
-        const formData = await request.formData();
-        const data_3d_id = formData.get("data_3d_id");
+        // data_3d_id dibaca dari query string lebih dahulu. Permintaan DELETE
+        // umumnya tidak memuat body, sehingga membaca formData() saja akan
+        // gagal dengan "Content-Type was not one of multipart/form-data".
+        //
+        // Bentuk form tetap diterima supaya pemanggil lama tidak langsung
+        // rusak. Pola query string sama dengan delete katalog 2D dan dengan
+        // koleksi Postman instruktur.
+        const { searchParams } = new URL(request.url);
+        let data_3d_id = searchParams.get("data_3d_id");
+
+        if (!data_3d_id) {
+            const formData = await request.formData().catch(() => null);
+            data_3d_id = formData?.get("data_3d_id") || null;
+        }
 
         if (!data_3d_id) {
             return NextResponse.json({ message: "ID data tidak boleh kosong" }, { status: 400 });

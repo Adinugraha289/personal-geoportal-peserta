@@ -18,16 +18,17 @@ const HapusData = ({ item, handleCloseDelete, getData, accessToken }) => {
         setError(null);
 
         try {
-            const formData = new FormData();
-            formData.append("data_3d_id", item.data_3d_id);
-
-            const response = await fetch("/portal/api/katalog-data-3d/delete", {
-                method: "POST",
-                headers: {
-                    Authorization: `Bearer ${accessToken}`,
-                },
-                body: formData,
-            }
+            // data_3d_id dikirim lewat query string, bukan FormData. Endpoint
+            // delete memakai metode DELETE, dan permintaan DELETE umumnya
+            // tidak memuat body. Pola ini sama dengan hapus katalog 2D.
+            const response = await fetch(
+                `/portal/api/katalog-data-3d/delete?data_3d_id=${item.data_3d_id}`,
+                {
+                    method: "DELETE",
+                    headers: {
+                        Authorization: `Bearer ${accessToken}`,
+                    },
+                }
             );
 
             const result = await response.json();
