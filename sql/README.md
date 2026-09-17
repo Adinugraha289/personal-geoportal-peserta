@@ -111,27 +111,56 @@ Skrip ini hanya butuh Node.js, sama seperti `hash-password.mjs`. Tidak perlu mem
 
 ## Data Spasial PostGIS
 
-Berlaku hanya kalau Anda membuat tabel spasial di schema `gis`.
+Bagian ini berlaku hanya kalau Anda akan mengunggah layer 2D ke katalog, yaitu fitur yang membuat tabel spasial di PostGIS lalu menerbitkannya sebagai layer di GeoServer.
 
-### Yang perlu dilakukan: cukup buat schema gis
+Ada dua hal berbeda yang sering tertukar:
 
-Di SQL Editor, jalankan satu perintah ini sebelum mulai berlatih data spasial:
+| | Schema | Keterangan |
+|---|---|---|
+| **PostGIS dipasang di** | `public` | Wajib. GeoServer tidak dapat membaca PostGIS dari schema lain |
+| **Tabel spasial dibuat di** | `gis` | Bebas, sesuai kesepakatan pelatihan |
 
-```sql
-CREATE SCHEMA IF NOT EXISTS gis;
+### PostGIS dipasang di schema public
+
+Saat mengaktifkan PostGIS, pilih schema `public`, jangan pilih **Create New Schema**.
+
+Alasannya, GeoServer memeriksa versi PostGIS lewat fungsi `postgis_lib_version()` setiap kali membuka koneksi ke datastore. Fungsi itu dicari memakai `search_path` koneksi GeoServer, dan `search_path` itu hanya memuat schema `public` beserta schema yang diisi pada kolom **schema** datastore. Bila PostGIS dipasang di schema `gis` sementara datastore menunjuk schema `gis`, fungsinya tetap tidak ditemukan dan GeoServer gagal terhubung:
+
+```
+Unable to obtain connection: ERROR: function postgis_lib_version() does not exist
 ```
 
-Setelah itu Anda bisa membuat tabel dengan kolom `geometry` dan memanggil `AddGeometryColumn` dari QGIS maupun DBeaver tanpa pengaturan tambahan.
+Di aplikasi, gejala ini muncul sebagai unggahan layer yang selalu gagal dengan pesan kosong, sehingga penyebab sebenarnya hanya terlihat di log GeoServer.
 
-Alasannya, peran `postgres` di Supabase sudah membawa `search_path` bawaan yang memuat schema `extensions`, tempat sebagian besar extension Supabase dipasang:
+### Tabel spasial tetap di schema gis
 
-```
-"$user", public, extensions
-```
+Pemisahan data di schema `gis` tetap dipakai, sesuai kesepakatan pelatihan. Isi datastore GeoServer seperti ini:
 
-Jadi tipe `geometry` dan fungsi PostGIS selalu terjangkau, di schema mana pun PostGIS mendarat.
+| Kolom pada form datastore | Nilai |
+|---|---|
+| host | `aws-0-<region>.pooler.supabase.com` |
+| port | `5432` |
+| database | `postgres` |
+| user | `postgres.<ref>` |
+| password | kata sandi database |
+| **schema** | **`gis`** |
 
-### Yang tidak perlu: mengunci search_path
+Pada `.env` aplikasi, isi `POSTGIS_SCHEMA=gis` supaya tabel dibuat di schema yang sama dengan datastore.
+
+Dengan susunan ini, tabel berada di `gis` sementara PostGIS berada di `public`, dan keduanya terjangkau.
+
+### Urutan pengerjaan yang benar
+
+Urutannya berpengaruh, karena GeoServer menyimpan kegagalan koneksi pertamanya.
+
+1. Aktifkan PostGIS di schema `public`.
+2. Jalankan `CREATE SCHEMA IF NOT EXISTS gis;` di SQL Editor.
+3. Buat datastore di GeoServer dengan schema `gis`.
+4. Baru unggah layer dari aplikasi.
+
+Bila datastore dibuat sebelum PostGIS aktif, GeoServer menyimpan kegagalan itu. Hapus lalu buat ulang datastore-nya setelah PostGIS aktif.
+
+### Mengapa mengunci search_path tidak diperlukan
 
 Modul Praktik 6 memuat perintah berikut untuk PostgreSQL lokal:
 
@@ -139,15 +168,15 @@ Modul Praktik 6 memuat perintah berikut untuk PostgreSQL lokal:
 ALTER DATABASE namadatabase SET search_path TO gis, public;
 ```
 
-Perintah itu tidak diperlukan di Supabase. Yang membuat galat muncul justru mengunci `search_path` sehingga `extensions` keluar dari jangkauan:
+Perintah itu tidak diperlukan di Supabase. Yang memunculkan galat justru mengunci `search_path` sehingga schema tempat PostGIS berada keluar dari jangkauan:
 
 ```
-SET search_path TO gis, public;   -- extensions hilang dari jangkauan
+SET search_path TO gis, public;
 CREATE TABLE uji (geom geometry(Point,4326));
 ERROR:  type "geometry" does not exist
 ```
 
-`04-postgis-supabase.sql` tetap disediakan untuk dua keperluan: memeriksa di schema mana PostGIS benar-benar mendarat, dan memperbaiki project lama yang `search_path` perannya sudah terlanjur dikunci.
+`04-postgis-supabase.sql` disediakan untuk memeriksa di schema mana PostGIS benar-benar mendarat.
 
 ## Mengosongkan Tabel
 

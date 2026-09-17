@@ -136,6 +136,21 @@ diaktifkan berhasil, katalog 2D dan 3D dapat disimpan, serta constraint dan
 unique email bekerja. Jalankan setelah menjalankan `sql/01-schema.sql`. Skrip
 itu membuat data uji lalu menghapusnya kembali.
 
+## Data Spasial
+
+Untuk mengunggah layer 2D ke katalog, dibutuhkan PostGIS dan GeoServer. Dua hal ini berbeda dan sering tertukar:
+
+| | Schema |
+|---|---|
+| PostGIS dipasang di | `public` |
+| Tabel spasial dibuat di | `gis` |
+
+**PostGIS harus di schema `public`.** GeoServer memeriksa versi PostGIS lewat `postgis_lib_version()`, dan fungsi itu hanya ditemukan dari schema `public`. Bila PostGIS dipasang di `gis`, GeoServer gagal terhubung dan unggahan layer selalu gagal dengan pesan kosong.
+
+**Tabel spasial tetap di schema `gis`,** sesuai kesepakatan pelatihan. Isi kolom schema pada datastore GeoServer dengan `gis`, dan isi `POSTGIS_SCHEMA=gis` pada `.env`.
+
+Urutannya berpengaruh: aktifkan PostGIS lebih dahulu, baru buat datastore di GeoServer. Penjelasan lengkapnya ada di [sql/README.md](sql/README.md).
+
 ## Konfigurasi Penting
 
 `next.config.mjs` memuat dua pengaturan yang tidak boleh diubah tanpa menyesuaikan berkas lain:
