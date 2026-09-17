@@ -170,8 +170,10 @@ export default function Navbar() {
         anchor="right"
         open={open}
         onClose={() => setOpen(false)}
-        PaperProps={{
-          sx: { width: 280, background: "rgba(255,255,255,0.98)", backdropFilter: "blur(16px)" },
+        slotProps={{
+          paper: {
+            sx: { width: 280, background: "rgba(255,255,255,0.98)", backdropFilter: "blur(16px)" },
+          },
         }}
       >
         <Box sx={{ p: 3, display: "flex", alignItems: "center", gap: 1.5 }}>

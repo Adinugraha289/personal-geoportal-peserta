@@ -458,7 +458,7 @@ export default function KelolaAkun() {
         onClose={handleCloseTambah}
         maxWidth="xs"
         fullWidth
-        PaperProps={{ sx: { borderRadius: 3 } }}
+        slotProps={{ paper: { sx: { borderRadius: 3 } } }}
       >
         <DialogTitle sx={{ fontWeight: 700, pb: 1, color: "#1E1E2D" }}>
           Tambah Akun
@@ -546,7 +546,7 @@ export default function KelolaAkun() {
         onClose={handleCloseHapus}
         maxWidth="xs"
         fullWidth
-        PaperProps={{ sx: { borderRadius: 3 } }}
+        slotProps={{ paper: { sx: { borderRadius: 3 } } }}
       >
         <DialogTitle sx={{ fontWeight: 700, pb: 1, color: "#1E1E2D" }}>
           Hapus Akun
@@ -588,7 +588,7 @@ export default function KelolaAkun() {
         onClose={handleCloseEdit}
         maxWidth="xs"
         fullWidth
-        paperprops={{ sx: { borderRadius: 3 } }}
+        slotProps={{ paper: { sx: { borderRadius: 3 } } }}
       >
         <DialogTitle sx={{ fontWeight: 700, pb: 1, color: "#1E1E2D" }}>
           Edit Akun User

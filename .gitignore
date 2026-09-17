@@ -58,4 +58,9 @@ next-env.d.ts
 
 # Catatan aktivitas server pengembangan. Dibuat saat menjalankan npm run dev,
 # dan isinya berubah setiap kali server dijalankan.
+#
+# Pola *.log menangkap seluruh berkas catatan, termasuk yang dibuat saat
+# menjalankan server pada port lain untuk keperluan pengujian. Tanpa pola ini,
+# berkas seperti dev3041.log ikut ter-commit dan ter-push tanpa disadari.
 dev.log
+*.log
