@@ -1,11 +1,13 @@
 -- =====================================================================
 -- Praktik 6 - Management Database Non Spasial
--- Menggantikan langkah manual "klik kanan -> Create New Table" di DBeaver.
+-- Membuat tiga tabel: users, katalog_data_2d, dan katalog_data_3d.
 --
--- Cara pakai (DBeaver: SQL Editor pada koneksi target, lalu Execute script):
---   psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f 01_schema_users_katalog.sql
+-- Cara pakai: buka SQL Editor di dashboard Supabase, salin SELURUH isi
+-- berkas ini, tempel, lalu klik Run. Penjelasan SQL Editor ada di
+-- sql/README.md.
 --
--- File ini idempoten: CREATE TABLE IF NOT EXISTS tidak menghapus data yang ada.
+-- Berkas ini idempoten: CREATE TABLE IF NOT EXISTS tidak menghapus data
+-- yang sudah ada, jadi aman dijalankan lebih dari sekali.
 -- Untuk mulai dari nol, hapus dulu ketiga tabelnya. Perintahnya ada pada
 -- bagian "Mengosongkan Tabel" di sql/README.md.
 -- =====================================================================
@@ -28,7 +30,7 @@ CREATE TABLE IF NOT EXISTS users (
 
     -- Baseline nilai. Validasi di Praktik 9 hanya ada di kode aplikasi,
     -- sehingga batasan berikut ditambahkan di database supaya data tidak
-    -- bisa masuk lewat jalur lain (import CSV, DBeaver, psql).
+    -- bisa masuk lewat jalur lain, misalnya import CSV atau klien database.
     CONSTRAINT users_email_key UNIQUE (email),
     CONSTRAINT users_role_valid
         CHECK (role IN ('viewer', 'editor', 'admin', 'super_admin'))
@@ -98,7 +100,7 @@ CREATE INDEX IF NOT EXISTS katalog_data_2d_akses_idx  ON katalog_data_2d (akses)
 CREATE INDEX IF NOT EXISTS katalog_data_3d_author_idx ON katalog_data_3d (author);
 
 -- View baca-saja: join yang sama dengan yang dilakukan kode API, supaya
--- query ad-hoc di DBeaver tidak perlu menuliskan join berulang.
+-- query ad-hoc tidak perlu menuliskan join berulang.
 CREATE OR REPLACE VIEW v_katalog_2d_lengkap AS
 SELECT k.data_2d_id,
        k.layer_name,

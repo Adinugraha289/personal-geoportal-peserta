@@ -4,16 +4,12 @@
 -- Mencari sebab kegagalan constraint TANPA mengubah data apa pun.
 -- Semua di sini hanya SELECT.
 --
--- Berkas ini memakai SQL biasa, sehingga bisa dijalankan di DBeaver,
--- pgAdmin, TablePlus, atau klien apa pun. Tidak ada meta-command.
+-- Berkas ini memakai SQL biasa tanpa meta-command, sehingga bisa
+-- ditempel apa adanya ke SQL Editor Supabase.
 --
--- Cara pakai di DBeaver:
---   Buka SQL Editor pada koneksi database, tempel seluruh isi berkas ini,
---   lalu Execute script (Alt+X). Jangan Execute statement, karena hanya
---   akan menjalankan satu pernyataan.
---
--- Cara pakai di psql:
---   psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f 05-diagnosa-constraint.sql
+-- Cara pakai: buka SQL Editor di dashboard Supabase, tempel SELURUH isi
+-- berkas ini, lalu klik Run. Berkas ini memuat sepuluh SELECT, jadi
+-- pastikan semuanya ikut tersalin.
 --
 -- Hasilnya sepuluh tabel kecil. Cocokkan dengan tabel keputusan di bawah.
 -- =====================================================================

@@ -19,13 +19,104 @@ Repositori ini adalah titik awal peserta. Konfigurasi deploy sudah tersedia di d
 | `cloudbuild.yaml` | Otomatisasi build saat push ke branch `main` |
 | `.env.example` | Daftar variabel lingkungan beserta penjelasannya |
 
+## Yang Perlu Disiapkan
+
+| Kebutuhan | Keterangan |
+|---|---|
+| Node.js | Sudah dipasang sejak Hari 1. Dipakai menjalankan aplikasi dan skrip di folder `scripts/` |
+| Akun Supabase | Gratis. Satu akun untuk satu peserta |
+| Akun GitHub | Untuk fork repositori ini |
+| Akses Google Cloud | Dari koordinator, untuk tahap deployment |
+
+Tidak perlu memasang klien database. Seluruh perintah SQL dijalankan lewat SQL Editor di dashboard Supabase, yang sudah ada di browser.
+
 ## Urutan Pengerjaan
 
-1. Fork repositori ini, lalu clone fork Anda.
-2. Buat project di [supabase.com](https://supabase.com), lalu jalankan skrip di folder `sql/` mengikuti [sql/README.md](sql/README.md).
-3. Jalankan `npm install`, lalu salin `.env.example` menjadi `.env` dan isi nilainya.
-4. Jalankan aplikasi di perangkat sendiri dengan `npm run dev`.
-5. Setelah berjalan, lanjutkan ke tahap deployment di Google Cloud.
+Kerjakan berurutan. Langkah 1 sampai 5 dikerjakan di laptop, langkah 6 dan seterusnya di VM.
+
+### 1. Fork dan clone
+
+Fork repositori ini di akun GitHub Anda, lalu clone fork tersebut.
+
+### 2. Buat project Supabase
+
+Buka [supabase.com/dashboard](https://supabase.com/dashboard), lalu buat project baru:
+
+| Kolom | Nilai |
+|---|---|
+| Name | Bebas, misalnya `geoportal-nama-anda` |
+| Database Password | Buat kata sandi, lalu **simpan**. Nilainya dibutuhkan pada langkah 4 |
+| Region | Southeast Asia (Singapore), supaya dekat dengan VM nanti |
+
+Tunggu sekitar dua menit sampai project selesai dibuat.
+
+Catatan penting untuk pengguna paket gratis: **satu akun Supabase dibatasi dua project aktif.** Jadi satu akun untuk satu peserta, jangan membuat beberapa project untuk satu peserta. Kalau kuota habis, hapus atau pause project yang tidak dipakai.
+
+### 3. Jalankan skrip SQL
+
+Ikuti [sql/README.md](sql/README.md). Di sana dijelaskan apa itu SQL Editor dan cara memakainya. Tiga berkas pertama yang perlu dijalankan: `01-schema.sql`, `02-seed-super-admin.sql`, dan `03-periksa.sql`.
+
+Setelah langkah ini Anda sudah punya akun super admin untuk masuk ke portal.
+
+### 4. Isi berkas .env
+
+```bash
+npm install
+cp .env.example .env
+```
+
+Buka `.env`, lalu isi bagian **WAJIB**. Berkas itu sudah dibagi menjadi tiga bagian dengan keterangan di dalamnya. Yang perlu Anda isi hanya empat nilai:
+
+| Variabel | Dari mana |
+|---|---|
+| `DATABASE_URL` | Tombol Connect di dashboard Supabase, pilih ORM/Prisma |
+| `JWT_SECRET` | Hasil perintah acak |
+| `NEXTAUTH_SECRET` | Hasil perintah acak, harus berbeda dari di atas |
+| `ADMIN_CONTACT_EMAIL` | Email Anda sendiri |
+
+Perintah untuk membuat dua nilai acak, pilih sesuai sistem Anda:
+
+```bash
+# macOS atau Linux
+openssl rand -hex 32
+
+# Windows, PowerShell, atau Command Prompt
+node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
+```
+
+### 5. Jalankan di laptop
+
+```bash
+npm run dev
+```
+
+Buka [http://localhost:3000/portal](http://localhost:3000/portal), lalu masuk memakai akun super admin dari langkah 3.
+
+### 6. Deployment ke VM
+
+Setelah portal berjalan di laptop, lanjutkan ke tahap deployment di Google Cloud. Panduannya ada di modul Praktik 11 pada situs materi pelatihan.
+
+## Koneksi ke Supabase
+
+Satu bagian ini sering salah, jadi dibaca pelan-pelan.
+
+Supabase menyediakan tiga bentuk connection string, dan **hanya satu yang bekerja** dengan Prisma:
+
+| Bentuk | Port | Hasil |
+|---|---|---|
+| `db.<ref>.supabase.co` | 5432 | Gagal. Pada project baru host ini hanya punya alamat IPv6 |
+| `aws-0-<region>.pooler.supabase.com` | 6543 | Gagal. Transaction pooler tidak mendukung prepared statement yang dipakai Prisma |
+| **`aws-0-<region>.pooler.supabase.com`** | **5432** | **Bekerja. Ini yang dipakai** |
+
+Perhatikan juga bentuk nama penggunanya, yaitu `postgres.<ref>`, bukan `postgres` saja. `<ref>` adalah Reference ID project yang terlihat pada URL dashboard.
+
+Contoh lengkap:
+
+```
+DATABASE_URL="postgresql://postgres.abcdefghijklm:kata-sandi-anda@aws-0-ap-southeast-1.pooler.supabase.com:5432/postgres"
+```
+
+Kalau kata sandi Anda memuat karakter khusus seperti `@` atau `#`, tulis dalam bentuk persen: `%40` dan `%23`.
 
 ## Perintah
 

@@ -1,10 +1,10 @@
 -- =====================================================================
 -- Praktik 6 - periksa constraint yang benar-benar terpasang
 --
--- Tempel seluruh isi berkas ini ke DBeaver, lalu Execute script (Alt+X).
+-- Tempel seluruh isi berkas ini ke SQL Editor Supabase, lalu klik Run.
 -- Semua di sini hanya SELECT. Tidak mengubah apa pun.
 --
--- Jangan mengandalkan tab Constraints di DBeaver untuk memeriksa ini.
+-- Jangan mengandalkan tampilan tabel di dashboard untuk memeriksa ini.
 -- Tab itu tidak menampilkan semua jenis constraint dengan cara yang sama,
 -- dan pada PostgreSQL 18 definisi NOT NULL tersimpan di pg_constraint
 -- sehingga penamaannya berbeda dari dugaan. Query di bawah membaca

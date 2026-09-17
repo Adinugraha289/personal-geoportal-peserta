@@ -1,18 +1,41 @@
 # Skema Database
 
-Folder ini memuat skrip SQL untuk menyiapkan database Supabase yang dipakai aplikasi ini. Jalankan berurutan lewat SQL Editor Supabase, atau lewat DBeaver dan `psql`.
+Folder ini memuat skrip SQL untuk membuat tabel yang dipakai aplikasi. Semuanya dijalankan lewat **SQL Editor Supabase**, tanpa memasang apa pun di komputer Anda.
+
+## Apa Itu SQL Editor
+
+SQL Editor adalah halaman di dalam dashboard Supabase untuk menjalankan perintah SQL ke database Anda. Anggap saja seperti terminal khusus database, tetapi berbentuk halaman web.
+
+Cara membukanya:
+
+1. Buka project Anda di [supabase.com/dashboard](https://supabase.com/dashboard).
+2. Pada menu kiri, klik **SQL Editor**.
+3. Halaman ini punya kotak besar untuk menulis atau menempel perintah, tombol **Run** di kanan bawah, dan daftar riwayat perintah di sisi kiri.
+
+Dua tombol yang perlu dibedakan:
+
+| Tombol | Gunanya |
+|---|---|
+| **Run** | Menjalankan seluruh isi kotak sekaligus. Ini yang dipakai di panduan ini. |
+| **Run selected** | Menjalankan hanya teks yang Anda blok. Berguna untuk mengulang satu perintah saja. |
+
+Hasil perintah muncul di panel bawah. Untuk perintah `CREATE TABLE` hasilnya hanya keterangan bahwa perintah berhasil. Untuk perintah `SELECT`, hasilnya berupa tabel.
+
+Cara memakai skrip di folder ini: buka berkasnya, salin **seluruh** isinya, tempel ke SQL Editor, lalu klik **Run**. Jangan salin sebagian, karena beberapa berkas memakai `BEGIN` dan `COMMIT` yang harus berpasangan.
 
 ## Urutan Pengerjaan
 
-| # | Berkas | Kapan dijalankan | Mengubah data? |
+Jalankan berurutan. Setiap baris di bawah adalah satu kali tempel dan satu kali Run.
+
+| # | Berkas | Kapan | Mengubah data? |
 |---|---|---|---|
-| 1 | `01-schema.sql` | Sekali, setelah project Supabase dibuat | Tidak, hanya membuat tabel |
-| 2 | `02-seed-super-admin.sql` | Setelah langkah 1 | Ya, menambah satu baris di `users` |
+| 1 | `01-schema.sql` | Setelah project Supabase dibuat | Tidak, hanya membuat tabel |
+| 2 | `02-seed-super-admin.sql` | Setelah langkah 1 | Ya, menambah satu akun super admin |
 | 3 | `03-periksa.sql` | Setelah langkah 2 | Tidak, hanya membaca |
 | 4 | `05-diagnosa-constraint.sql` | Bila ada kegagalan constraint | Tidak, hanya membaca |
-| 5 | `04-postgis-supabase.sql` | Hanya untuk data spasial, baca catatan di bawah | Ya, mengubah `search_path` database |
+| 5 | `04-postgis-supabase.sql` | Hanya untuk data spasial, baca catatannya | Ya, mengubah `search_path` database |
 
-Berkas 1 sampai 3 menyiapkan tabel untuk login dan katalog, dan itu cukup untuk membuat aplikasi berjalan. Berkas 4 dan 5 hanya diperlukan kalau Anda mengerjakan bagian data spasial PostGIS.
+Langkah 1 sampai 3 sudah cukup untuk membuat portal berjalan dengan login dan Kelola Akun.
 
 ## Tiga Tabel yang Dibuat
 
@@ -30,34 +53,53 @@ Kolom yang wajib terisi saat mendaftar: `user_id`, `nama`, `email`, `password`, 
 
 Dua kolom yang menentukan perilaku login:
 
-- `password` menyimpan hash bcrypt, bukan kata sandi asli. Buat hashnya dengan `node scripts/hash-password.mjs`.
-- `is_active` bernilai `false` untuk setiap akun baru. Selama `false`, login ditolak dengan pesan yang meminta aktivasi. Ubah menjadi `true` untuk mengaktifkan akun.
+- `password` menyimpan hash bcrypt, bukan kata sandi asli.
+- `is_active` bernilai `false` untuk setiap akun baru. Selama `false`, login ditolak dengan pesan yang meminta aktivasi.
 
-Nilai `role` dibatasi pada `viewer`, `editor`, `admin`, dan `super_admin` oleh constraint di database. Endpoint pembuatan user hanya menerima `editor` dan `admin`, sedangkan `super_admin` diisi lewat `02-seed-super-admin.sql`.
+Nilai `role` dibatasi pada `viewer`, `editor`, `admin`, dan `super_admin`. Halaman pendaftaran selalu menghasilkan `editor`. Hanya `02-seed-super-admin.sql` yang bisa membuat `super_admin`, dan itu memang disengaja supaya tidak ada yang bisa menaikkan perannya sendiri.
 
 ### katalog_data_2d dan katalog_data_3d
 
 Keduanya menyimpan metadata katalog, bukan berkas datanya. Kolom `author` menunjuk ke `users.user_id`.
 
-`katalog_data_3d.tipe_file` punya nilai bawaan `'glb'`. Kolom itu tidak pernah dikirim aplikasi saat menyimpan data 3D, sehingga tanpa nilai bawaan setiap penyimpanan akan gagal dengan `null value in column "tipe_file" violates not-null constraint`.
+`katalog_data_3d.tipe_file` punya nilai bawaan `'glb'`. Kolom itu tidak pernah dikirim aplikasi saat menyimpan data 3D, sehingga tanpa nilai bawaan setiap penyimpanan akan gagal dengan:
 
-## Kata Sandi Database
-
-Jangan menyimpan kata sandi polos di kolom `password`. Alur yang benar:
-
-```bash
-# 1. buat hash, kata sandi diminta lewat prompt tersembunyi
-node scripts/hash-password.mjs
-
-# 2. salin hasilnya, lalu isi pada blok DO di 02-seed-super-admin.sql
-#    bersama alamat email super admin
+```
+null value in column "tipe_file" violates not-null constraint
 ```
 
-Skrip itu memakai bcryptjs dengan cost 12 dan menghasilkan nilai berawalan `$2b$12$`, sama dengan yang dihasilkan `bcrypt.hashSync` di dalam aplikasi. Keduanya bisa saling memeriksa.
+## Membuat Akun Super Admin
+
+Tiga langkah. Langkah 1 dijalankan di terminal, langkah 2 dan 3 di SQL Editor.
+
+**Langkah 1. Buat hash kata sandi.** Di folder proyek, jalankan:
+
+```bash
+node scripts/hash-password.mjs
+```
+
+Skrip itu meminta kata sandi lewat prompt tersembunyi, jadi kata sandinya tidak muncul di layar dan tidak masuk riwayat terminal. Hasilnya satu baris berawalan `$2b$12$`. Salin baris itu.
+
+**Langkah 2. Isi penandanya.** Buka `02-seed-super-admin.sql`, lalu ganti dua penanda di bagian `LANGKAH 3`:
+
+```sql
+email_admin text := '<ISI_EMAIL_DI_SINI>';   -- ganti dengan email Anda
+hash_admin  text := '<ISI_HASH_DI_SINI>';    -- tempel hash dari langkah 1
+```
+
+**Langkah 3. Jalankan.** Salin seluruh isi berkas yang sudah diubah ke SQL Editor, lalu Run. Hasilnya:
+
+```
+NOTICE: Akun super admin nama@email.com siap dipakai.
+```
+
+Skrip itu punya penjagaan. Kalau penandanya belum diganti, perintahnya berhenti dengan pesan yang menyebut penanda mana yang belum diisi, bukan membuat akun dengan email kosong.
+
+Setelah itu masuk ke portal memakai email dan kata sandi tersebut.
 
 ## Menguji Hasilnya
 
-Setelah skema terpasang dan `DATABASE_URL` terisi, jalankan:
+Setelah skema terpasang dan `.env` terisi, jalankan dari folder proyek:
 
 ```bash
 node scripts/uji-database.mjs
@@ -65,15 +107,15 @@ node scripts/uji-database.mjs
 
 Skrip itu memeriksa dua belas hal sekaligus: ketiga tabel dapat dibaca, akun belum aktif ditolak, kata sandi salah ditolak, login setelah diaktifkan berhasil, katalog 2D dan 3D dapat disimpan, serta constraint role dan unique email bekerja. Data ujinya dihapus kembali di akhir.
 
-Kalau ada yang GAGAL, keluarannya menyebut bagian mana yang belum siap, sehingga Anda tidak perlu menebak.
+Skrip ini hanya butuh Node.js, sama seperti `hash-password.mjs`. Tidak perlu memasang klien database.
 
 ## Data Spasial PostGIS
 
-Bagian ini berlaku hanya kalau Anda membuat tabel spasial di schema `gis`.
+Berlaku hanya kalau Anda membuat tabel spasial di schema `gis`.
 
 ### Yang perlu dilakukan: cukup buat schema gis
 
-Di project Supabase yang baru dibuat, satu perintah ini sudah cukup:
+Di SQL Editor, jalankan satu perintah ini sebelum mulai berlatih data spasial:
 
 ```sql
 CREATE SCHEMA IF NOT EXISTS gis;
@@ -97,12 +139,7 @@ Modul Praktik 6 memuat perintah berikut untuk PostgreSQL lokal:
 ALTER DATABASE namadatabase SET search_path TO gis, public;
 ```
 
-Perintah itu tidak diperlukan di Supabase, dan ada dua alasan:
-
-1. Bila PostGIS dipasang di schema `gis`, maka `gis` sudah ada di `search_path` sehingga tidak ada masalah yang perlu diperbaiki.
-2. Bila PostGIS dipasang di schema `extensions`, `extensions` sudah ada di `search_path` bawaan peran `postgres`, sehingga juga tidak ada masalah.
-
-Yang membuat galat muncul bukan `search_path` bawaannya, melainkan mengunci `search_path` sehingga `extensions` keluar dari jangkauan:
+Perintah itu tidak diperlukan di Supabase. Yang membuat galat muncul justru mengunci `search_path` sehingga `extensions` keluar dari jangkauan:
 
 ```
 SET search_path TO gis, public;   -- extensions hilang dari jangkauan
@@ -110,18 +147,11 @@ CREATE TABLE uji (geom geometry(Point,4326));
 ERROR:  type "geometry" does not exist
 ```
 
-Perhatikan bahwa galat di atas muncul justru karena `search_path` dikunci, bukan sebelum dikunci.
-
-`04-postgis-supabase.sql` tetap disediakan untuk dua keperluan:
-
-- Diagnosa. Bagian pertamanya hanya membaca, dan bisa dipakai memastikan di schema mana PostGIS benar-benar mendarat di akun Anda.
-- Project lama. Sebagian project Supabase yang dibuat sebelum 2025 memasang PostGIS di schema `extensions` sekaligus mengunci `search_path` peran `postgres` ke `gis, public`. Pada project seperti itu skrip ini diperlukan.
-
-Satu catatan teknis bila Anda menjalankannya: `ALTER DATABASE ... SET search_path` di dalam skrip itu tertimpa oleh setelan tingkat peran. Peran `postgres` di Supabase memiliki setelan sendiri, dan setelan peran selalu menang atas setelan database. Karena itu, bila bagian diagnosa menunjukkan `extensions` sudah terjangkau, tidak ada yang perlu diubah.
+`04-postgis-supabase.sql` tetap disediakan untuk dua keperluan: memeriksa di schema mana PostGIS benar-benar mendarat, dan memperbaiki project lama yang `search_path` perannya sudah terlanjur dikunci.
 
 ## Mengosongkan Tabel
 
-Kalau Anda perlu memulai dari nol, jalankan perintah berikut di SQL Editor. Perintah ini menghapus seluruh isi ketiga tabel:
+Kalau perlu memulai dari nol, jalankan perintah ini di SQL Editor. Seluruh isi ketiga tabel akan hilang.
 
 ```sql
 DROP VIEW  IF EXISTS v_katalog_2d_lengkap;
@@ -130,15 +160,33 @@ DROP TABLE IF EXISTS katalog_data_3d CASCADE;
 DROP TABLE IF EXISTS users           CASCADE;
 ```
 
-Setelah itu jalankan `01-schema.sql` lagi untuk membuat ulang tabelnya.
+Setelah itu jalankan `01-schema.sql` lagi.
 
 ## Bila Login Gagal
 
 Periksa berurutan:
 
-1. DATABASE_URL salah. Cek dengan `psql "$DATABASE_URL" -c "SELECT 1"`. Pastikan memakai port 5432, bukan 6543.
-2. Tabel belum ada. Jalankan `03-periksa.sql`, hasilnya harus menampilkan tiga tabel.
-3. Akun belum aktif. `SELECT email, is_active FROM users;` lalu ubah `is_active` menjadi `true`.
-4. Kata sandi tidak cocok. Periksa hash tersimpan dengan `node scripts/hash-password.mjs --cek '<hash>'`, lalu bandingkan memakai kata sandi aslinya.
-5. Pesan galat menyebut tabel tidak ditemukan. Prisma membaca schema `public`. Pastikan ketiga tabel dibuat di schema `public`, bukan schema lain.
-6. Masih gagal. Jalankan `05-diagnosa-constraint.sql`, yang memeriksa sepuluh hal sekaligus dan diakhiri tabel keputusan: gejala mana menunjuk ke perbaikan mana.
+1. **`DATABASE_URL` salah.** Pesan galatnya menyebut `Can't reach database server`. Periksa bagian "Koneksi ke Supabase" pada README utama.
+2. **Tabel belum ada.** Jalankan `03-periksa.sql`. Hasilnya harus menampilkan tiga tabel.
+3. **Akun belum aktif.** Jalankan di SQL Editor:
+   ```sql
+   SELECT email, role, is_active FROM users;
+   UPDATE users SET is_active = true WHERE email = 'email-anda';
+   ```
+4. **Kata sandi tidak cocok.** Periksa hash yang tersimpan:
+   ```bash
+   node scripts/hash-password.mjs --cek '<hash-dari-kolom-password>'
+   ```
+5. **Pesan menyebut tabel tidak ditemukan.** Prisma membaca schema `public`. Pastikan ketiga tabel dibuat di sana, bukan di schema lain.
+6. **Masih gagal.** Jalankan `05-diagnosa-constraint.sql`, yang memeriksa sepuluh hal sekaligus dan diakhiri tabel keputusan: gejala mana menunjuk ke perbaikan mana.
+
+## Menjalankan Lewat Terminal
+
+Bagian ini opsional. Hanya perlu kalau Anda sudah memasang `psql`, dan tidak diperlukan untuk mengikuti pelatihan.
+
+```bash
+psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f sql/01-schema.sql
+psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f sql/03-periksa.sql
+```
+
+Berkas 01 dan 03 bersifat idempoten, memakai `CREATE TABLE IF NOT EXISTS`. Menjalankannya dua kali tidak menghapus data yang sudah ada.

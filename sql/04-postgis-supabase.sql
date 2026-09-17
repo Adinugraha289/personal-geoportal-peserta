@@ -27,8 +27,8 @@
 --   Bagian 3  pembersihan       menghapus wrapper rusak dari modul Praktik 8
 --   Bagian 4  uji fungsi        membuktikan jalur QGIS sudah jalan
 --
--- Jalankan sebagai peran postgres, di SQL Editor Supabase atau DBeaver.
--- Tidak ada meta-command psql, jadi bisa ditempel apa adanya.
+-- Jalankan di SQL Editor Supabase.
+-- Tidak ada meta-command psql, jadi bisa ditempel apa adanya ke SQL Editor.
 --
 -- Catatan: setelah Bagian 2, koneksi QGIS dan DBeaver harus ditutup lalu
 -- dibuka lagi. ALTER DATABASE hanya berlaku untuk sesi baru.

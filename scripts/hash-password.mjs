@@ -9,7 +9,7 @@
 //   const hash = bcrypt.hashSync('PasswordRahasia123', 10);
 //   console.log(hash);
 //
-// kemudian salin hasilnya dan paste ke kolom password di DBeaver.
+// kemudian salin hasilnya dan paste ke kolom password lewat klien database.
 //
 // Cara itu punya tiga masalah:
 //   - hasilnya harus disalin manual, gampang salah ketik
@@ -25,9 +25,9 @@
 //   PASSWORD=rahasia node hash-password.mjs     # lewat variabel lingkungan
 //   node hash-password.mjs --cost 12            # tentukan cost
 //
-// Hasil bisa langsung dipakai:
-//   psql "$DATABASE_URL" -v hash="$(node hash-password.mjs)" \
-//        -v email=admin@example.com -f sql/02-seed-super-admin.sql
+// Hasilnya dipakai pada sql/02-seed-super-admin.sql. Salin hash yang
+// tercetak, lalu tempel pada penanda <ISI_HASH_DI_SINI> di berkas itu,
+// dan jalankan berkasnya lewat SQL Editor Supabase.
 // =====================================================================
 
 import { createInterface } from 'node:readline';
@@ -150,8 +150,10 @@ console.log(hash);
 console.error('');
 console.error(`Pustaka : ${bcrypt.nama}, cost ${cost}, ${durasi} ms`);
 console.error('');
-console.error('Pakai hash ini untuk mengisi kolom password, misalnya:');
-console.error('  psql "$DATABASE_URL" -v email=admin@example.com \\');
-console.error(`       -v hash='${hash.slice(0, 10)}...' -f "sql/02-seed-super-admin.sql"`);
+console.error('Cara memakainya:');
+console.error('  1. Buka sql/02-seed-super-admin.sql');
+console.error('  2. Ganti <ISI_EMAIL_DI_SINI> dengan email Anda');
+console.error(`  3. Ganti <ISI_HASH_DI_SINI> dengan hash di atas (${hash.slice(0, 10)}...)`);
+console.error('  4. Salin seluruh isi berkas itu ke SQL Editor Supabase, lalu Run');
 console.error('');
 console.error('Jangan pernah menyimpan password polos ke kolom password.');

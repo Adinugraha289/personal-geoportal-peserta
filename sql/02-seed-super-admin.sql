@@ -2,12 +2,11 @@
 -- Praktik 6 - seed akun super admin
 --
 -- Menggantikan langkah manual pada modul Praktik 9: jalankan potongan JS
--- di REPL node, salin hash-nya, lalu paste ke kolom password di DBeaver.
+-- di REPL node, salin hash-nya, lalu tempel ke kolom password lewat SQL Editor.
 -- Cara itu gampang salah ketik dan tidak bisa diulang orang lain.
 --
--- Berkas ini memakai SQL biasa, sehingga bisa dijalankan di DBeaver,
--- pgAdmin, TablePlus, atau psql dengan isi yang sama. Tidak ada
--- meta-command.
+-- Berkas ini memakai SQL biasa tanpa meta-command, sehingga bisa
+-- ditempel apa adanya ke SQL Editor Supabase.
 --
 -- =====================================================================
 -- LANGKAH 1. Buat hash kata sandi
@@ -26,8 +25,8 @@
 -- LANGKAH 2. Ganti dua nilai di Langkah 3, lalu jalankan berkas ini
 -- =====================================================================
 --
--- Di DBeaver: buka SQL Editor, tempel isi berkas ini, ganti kedua nilai
--- pada blok DO di bawah, lalu Execute script (Alt+X).
+-- Di SQL Editor Supabase: tempel seluruh isi berkas ini, ganti kedua
+-- nilai pada blok DO di bawah lebih dahulu, lalu klik Run.
 --
 -- Nilai yang salah ditolak penjagaan di dalam blok, sehingga kata sandi
 -- polos tidak mungkin masuk ke kolom password.
