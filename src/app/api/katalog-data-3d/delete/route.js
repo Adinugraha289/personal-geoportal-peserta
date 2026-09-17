@@ -4,7 +4,7 @@ import path from "path";
 import { db } from "../../../../../lib/db";
 import { requireAuth } from "../../../../../lib/auth/verifyBearerToken";
 
-export async function POST(request) {
+export async function DELETE(request) {
     // 1. Validasi Autentikasi
     const { payload, error, status } = requireAuth(request, "admin");
     if (error) {
