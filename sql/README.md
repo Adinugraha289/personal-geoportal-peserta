@@ -35,10 +35,15 @@ Jalankan berurutan. Setiap baris di bawah adalah satu kali tempel dan satu kali 
 | 4 | `05-diagnosa-constraint.sql` | Bila ada kegagalan constraint | Tidak, hanya membaca |
 | 5 | `04-postgis-supabase.sql` | Hanya untuk data spasial, baca catatannya | Ya, mengubah `search_path` database |
 | 6 | `06-migrasi-peran-viewer.sql` | Hanya bila database dibuat memakai versi `01-schema.sql` yang lama | Ya, memindahkan akun berperan `editor` |
+| 7 | `07-aktifkan-rls.sql` | Hanya bila tabel Anda dibuat sebelum `01-schema.sql` memuat perintah RLS | Ya, mengaktifkan Row Level Security |
 
 Berkas nomor 6 hanya diperlukan bila database Anda sudah terlanjur dibuat sebelum peran `editor` dihapus. Sebabnya, `01-schema.sql` memakai `CREATE TABLE IF NOT EXISTS`, sehingga menjalankannya kembali **tidak** mengubah tabel yang sudah ada.
 
 Akibat bila berkas itu tidak dijalankan pada database lama: akun yang berperan `editor` masih dapat login, tetapi ditolak di seluruh endpoint katalog dengan `403`, karena `lib/auth/roles.js` tidak lagi mengenal peran itu.
+
+Berkas nomor 7 memperingatkan hal yang lebih serius. Tanpa Row Level Security, tabel di schema `public` dapat dibaca lewat REST API Supabase memakai kunci `anon`. Kunci itu memang dirancang untuk dipakai di sisi peramban, jadi nilainya tidak dianggap rahasia.
+
+Diuji pada project Supabase sungguhan: sebelum RLS diaktifkan, peran `anon` **dapat membaca kolom `password`**, dan memiliki izin `SELECT`, `INSERT`, `UPDATE`, `DELETE`, serta `TRUNCATE` pada tabel `users`. Setelah RLS diaktifkan, peran `anon` dan `authenticated` tidak melihat satu baris pun, sedangkan aplikasi tetap berjalan normal karena koneksi Prisma memakai peran `postgres` yang merupakan pemilik tabel.
 
 Langkah 1 sampai 3 sudah cukup untuk membuat portal berjalan dengan login dan Kelola Akun.
 

@@ -135,3 +135,47 @@ COMMIT;
 --   FROM katalog_data_2d k
 --   LEFT JOIN users u ON u.user_id = k.author
 --   WHERE k.author IS NOT NULL AND u.user_id IS NULL;
+
+-- =====================================================================
+-- Keamanan: aktifkan Row Level Security pada ketiga tabel
+--
+-- Tanpa ini, tabel di schema public dapat dibaca dan diubah lewat REST API
+-- Supabase memakai kunci anon, tanpa perlu login ke aplikasi. Kunci anon
+-- memang dirancang untuk dipakai di sisi peramban, jadi nilainya tidak
+-- dianggap rahasia. Yang mencegah penyalahgunaan adalah RLS, bukan
+-- kerahasiaan kunci itu.
+--
+-- Diuji pada project Supabase sungguhan:
+--
+--   SEBELUM RLS   peran anon dapat membaca kolom password, dan memiliki
+--                 izin SELECT, INSERT, UPDATE, DELETE, dan TRUNCATE
+--                 pada tabel users.
+--
+--   SESUDAH RLS   peran anon dan authenticated tidak melihat satu baris pun.
+--                 Aplikasi tetap berjalan normal, karena koneksi Prisma
+--                 memakai peran postgres yang merupakan PEMILIK tabel,
+--                 dan pemilik tabel melewati RLS secara bawaan.
+--
+-- RLS tanpa policy berarti menutup akses untuk semua peran selain pemilik.
+-- Itu memang yang diinginkan di sini: seluruh akses data dilakukan lewat
+-- API aplikasi sendiri, yang sudah memeriksa token dan peran pengguna.
+-- =====================================================================
+BEGIN;
+
+ALTER TABLE users           ENABLE ROW LEVEL SECURITY;
+ALTER TABLE katalog_data_2d ENABLE ROW LEVEL SECURITY;
+ALTER TABLE katalog_data_3d ENABLE ROW LEVEL SECURITY;
+
+COMMIT;
+
+-- ---------------------------------------------------------------------
+-- Periksa hasilnya. Harus menampilkan rls = true untuk ketiga tabel.
+--
+--   SELECT relname AS tabel, relrowsecurity AS rls
+--   FROM pg_class c
+--   JOIN pg_namespace n ON n.oid = c.relnamespace
+--   WHERE n.nspname = 'public'
+--     AND c.relkind = 'r'
+--     AND c.relname IN ('users', 'katalog_data_2d', 'katalog_data_3d')
+--   ORDER BY relname;
+-- ---------------------------------------------------------------------
