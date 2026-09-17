@@ -103,11 +103,17 @@ export default function PreviewCesiumModal({ openPreview, item }) {
 
             // 4. Tambahkan Model 3D
             const position = Cesium.Cartesian3.fromDegrees(lon, lat, 0);
+
+            // Ukuran diambil dari nilai yang tersimpan bersama data. Nilai
+            // 100 hanya dipakai sebagai cadangan untuk data lama yang belum
+            // punya nilai scale.
+            const skalaModel = Number(item.scale) > 0 ? Number(item.scale) : 100;
+
             const modelEntity = viewer.entities.add({
                 position,
                 model: {
                     uri: `${item.url}?access_token=${session?.data?.accessToken}`,
-                    scale: 100.0,
+                    scale: skalaModel,
                     heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
                 },
             });

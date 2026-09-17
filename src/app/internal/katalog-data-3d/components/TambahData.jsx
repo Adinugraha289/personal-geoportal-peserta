@@ -84,9 +84,13 @@ const TambahData = ({ form, setForm, handleCloseCreate, getData, accessToken }) 
             formData.append("akses", form.akses || "public");
             formData.append("latitude", form.latitude || centerPoint[0]);
             formData.append("longitude", form.longitude || centerPoint[1]);
-            formData.append("heading", 0);
-            formData.append("pitch", 0);
-            formData.append("roll", 0);
+            // Keempat nilai ini sebelumnya ditulis tetap di sini, sehingga
+            // isian pada form tidak pernah berpengaruh. Sekarang nilainya
+            // diambil dari form.
+            formData.append("heading", form.heading ?? 0);
+            formData.append("pitch", form.pitch ?? 0);
+            formData.append("roll", form.roll ?? 0);
+            formData.append("scale", form.scale ?? 100);
 
             const response = await fetch("/portal/api/katalog-data-3d/create", {
                 method: "POST",
@@ -213,6 +217,61 @@ const TambahData = ({ form, setForm, handleCloseCreate, getData, accessToken }) 
                     <MenuItem value="public">Public</MenuItem>
                     <MenuItem value="private">Private</MenuItem>
                 </TextField>
+
+                {/* Ukuran dan orientasi model */}
+                <Box sx={{ display: "flex", gap: 2 }}>
+                    <TextField
+                        label="Skala"
+                        type="number"
+                        fullWidth
+                        value={form?.scale ?? 100}
+                        onChange={(e) =>
+                            setForm &&
+                            setForm((f) => ({
+                                ...f,
+                                scale: e.target.value,
+                            }))
+                        }
+                        helperText="Ukuran model. Nilai bawaan 100."
+                        sx={{
+                            "& .MuiInputBase-input": { color: "#1F2937" },
+                            "& .MuiInputLabel-root": { color: "#6B7280" },
+                            "& .MuiInputLabel-root.Mui-focused": { color: "#1976D2" },
+                            "& .MuiOutlinedInput-root": {
+                                "& fieldset": { borderColor: "#BFC5CC" },
+                                "&:hover fieldset": { borderColor: "#1976D2" },
+                                "&.Mui-focused fieldset": { borderColor: "#1976D2" },
+                            },
+                            "& .MuiFormHelperText-root": { color: "#6B7280" },
+                        }}
+                    />
+
+                    <TextField
+                        label="Arah (heading)"
+                        type="number"
+                        fullWidth
+                        value={form?.heading ?? 0}
+                        onChange={(e) =>
+                            setForm &&
+                            setForm((f) => ({
+                                ...f,
+                                heading: e.target.value,
+                            }))
+                        }
+                        helperText="Derajat, 0 sampai 360."
+                        sx={{
+                            "& .MuiInputBase-input": { color: "#1F2937" },
+                            "& .MuiInputLabel-root": { color: "#6B7280" },
+                            "& .MuiInputLabel-root.Mui-focused": { color: "#1976D2" },
+                            "& .MuiOutlinedInput-root": {
+                                "& fieldset": { borderColor: "#BFC5CC" },
+                                "&:hover fieldset": { borderColor: "#1976D2" },
+                                "&.Mui-focused fieldset": { borderColor: "#1976D2" },
+                            },
+                            "& .MuiFormHelperText-root": { color: "#6B7280" },
+                        }}
+                    />
+                </Box>
 
                 {/* Tombol Aksi */}
                 <Box

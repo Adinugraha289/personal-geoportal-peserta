@@ -20,6 +20,10 @@ export async function GET(request) {
                 heading: true,
                 pitch: true,
                 roll: true,
+                // scale diperlukan halaman pratinjau untuk menentukan ukuran
+                // model. Sebelumnya nilai itu ditulis tetap di frontend,
+                // sehingga nilai yang tersimpan tidak pernah terpakai.
+                scale: true,
                 users: {
                     select: {
                         email: true
