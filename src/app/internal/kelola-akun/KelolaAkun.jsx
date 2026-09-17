@@ -34,6 +34,21 @@ import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import AddIcon from "@mui/icons-material/Add";
 import { useSession } from "next-auth/react";
+// Daftar peran diambil dari lib/auth/roles.js supaya halaman ini dan API
+// memakai daftar yang sama. Sebelumnya halaman ini menawarkan "Super Admin"
+// pada dialog Edit, padahal API menolaknya dengan 400 Role tidak valid.
+import {
+  ROLE_DAPAT_DIBUAT,
+  ROLE_DAPAT_DIUBAH,
+  ROLE_BAWAAN,
+} from "../../../../lib/auth/roles";
+
+// Nama peran yang enak dibaca, untuk ditampilkan pada pilihan.
+const LABEL_PERAN = {
+  viewer: "Viewer",
+  admin: "Admin",
+  super_admin: "Super Admin",
+};
 
 export default function KelolaAkun() {
   const { data: session, status } = useSession();
@@ -43,6 +58,18 @@ export default function KelolaAkun() {
   // State Search & Filter
   const [search, setSearch] = useState("");
   const [filteredAkuns, setFilteredAkuns] = useState([]);
+
+  // State Modal Tambah Akun
+  const [openTambah, setOpenTambah] = useState(false);
+  const [newNama, setNewNama] = useState("");
+  const [newEmail, setNewEmail] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [newRole, setNewRole] = useState(ROLE_BAWAAN);
+  const [newIsActive, setNewIsActive] = useState(true);
+
+  // State Modal Hapus Akun
+  const [openHapus, setOpenHapus] = useState(false);
+  const [hapusTarget, setHapusTarget] = useState(null);
 
   // State Modal Edit
   const [openEdit, setOpenEdit] = useState(false);
@@ -92,6 +119,99 @@ export default function KelolaAkun() {
     });
     setFilteredAkuns(result);
   }, [search, akuns]);
+
+  const handleOpenTambah = () => {
+    setNewNama("");
+    setNewEmail("");
+    setNewPassword("");
+    setNewRole(ROLE_BAWAAN);
+    setNewIsActive(true);
+    setOpenTambah(true);
+  };
+
+  const handleCloseTambah = () => {
+    if (submitting) return;
+    setOpenTambah(false);
+  };
+
+  const handleSubmitTambah = async () => {
+    // Diperiksa di sini juga, supaya pesannya jelas sebelum sampai ke API.
+    if (!newNama.trim() || !newEmail.trim() || !newPassword) {
+      alert("Nama, email, dan kata sandi wajib diisi.");
+      return;
+    }
+
+    setSubmitting(true);
+    try {
+      const response = await fetch("/portal/api/users/create", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${session.accessToken}`,
+        },
+        body: JSON.stringify({
+          nama: newNama.trim(),
+          email: newEmail.trim(),
+          password: newPassword,
+          role: newRole,
+          is_active: newIsActive,
+        }),
+      });
+
+      const result = await response.json();
+      if (!response.ok) {
+        throw new Error(result.message || "Gagal menambah akun");
+      }
+
+      alert("Berhasil menambah akun!");
+      setOpenTambah(false);
+      fetchAkuns();
+    } catch (err) {
+      alert(err.message);
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const handleOpenHapus = (user) => {
+    setHapusTarget(user);
+    setOpenHapus(true);
+  };
+
+  const handleCloseHapus = () => {
+    if (submitting) return;
+    setOpenHapus(false);
+  };
+
+  const handleConfirmHapus = async () => {
+    if (!hapusTarget) return;
+
+    setSubmitting(true);
+    try {
+      const response = await fetch(
+        `/portal/api/users/delete?user_id=${hapusTarget.user_id}`,
+        {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${session.accessToken}`,
+          },
+        }
+      );
+
+      const result = await response.json();
+      if (!response.ok) {
+        throw new Error(result.message || "Gagal menghapus akun");
+      }
+
+      alert("Berhasil menghapus akun!");
+      setOpenHapus(false);
+      fetchAkuns();
+    } catch (err) {
+      alert(err.message);
+    } finally {
+      setSubmitting(false);
+    }
+  };
 
   const handleOpenEdit = (user) => {
     setSelectedUser(user);
@@ -201,6 +321,7 @@ export default function KelolaAkun() {
           <Button
             variant="contained"
             startIcon={<AddIcon />}
+            onClick={handleOpenTambah}
             sx={{
               height: "100%",
               bgcolor: "#4F46E5",
@@ -303,6 +424,7 @@ export default function KelolaAkun() {
                         <IconButton
                           size="small"
                           color="error"
+                          onClick={() => handleOpenHapus(row)}
                           disabled={row.role === "super_admin"}
                           sx={{
                             "&:disabled": { color: "#9CA3AF" },
@@ -329,6 +451,136 @@ export default function KelolaAkun() {
           </TableBody>
         </Table>
       </Paper>
+
+      {/* Modal Tambah Akun */}
+      <Dialog
+        open={openTambah}
+        onClose={handleCloseTambah}
+        maxWidth="xs"
+        fullWidth
+        PaperProps={{ sx: { borderRadius: 3 } }}
+      >
+        <DialogTitle sx={{ fontWeight: 700, pb: 1, color: "#1E1E2D" }}>
+          Tambah Akun
+        </DialogTitle>
+        <DialogContent dividers sx={{ display: "flex", flexDirection: "column", gap: 2.5, pt: 2 }}>
+          <TextField
+            label="Nama"
+            value={newNama}
+            onChange={(e) => setNewNama(e.target.value)}
+            fullWidth
+            size="small"
+            variant="outlined"
+          />
+
+          <TextField
+            label="Email"
+            type="email"
+            value={newEmail}
+            onChange={(e) => setNewEmail(e.target.value)}
+            fullWidth
+            size="small"
+            variant="outlined"
+          />
+
+          <TextField
+            label="Kata Sandi"
+            type="password"
+            value={newPassword}
+            onChange={(e) => setNewPassword(e.target.value)}
+            fullWidth
+            size="small"
+            variant="outlined"
+            helperText="Minimal 8 karakter. Sampaikan kepada pemilik akun."
+          />
+
+          <FormControl fullWidth size="small">
+            <InputLabel id="tambah-role-label">Role</InputLabel>
+            <Select
+              labelId="tambah-role-label"
+              value={newRole}
+              label="Role"
+              onChange={(e) => setNewRole(e.target.value)}
+            >
+              {ROLE_DAPAT_DIBUAT.map((peran) => (
+                <MenuItem key={peran} value={peran}>
+                  {LABEL_PERAN[peran] || peran}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+
+          <FormControlLabel
+            control={
+              <Switch
+                checked={newIsActive}
+                onChange={(e) => setNewIsActive(e.target.checked)}
+              />
+            }
+            label={newIsActive ? "Aktif" : "Belum aktif"}
+          />
+
+          <Typography variant="caption" sx={{ color: "#6B7280" }}>
+            Akun yang belum aktif dapat login, tetapi ditolak dengan pesan
+            permintaan aktivasi. Hubungi admin untuk mengaktifkannya.
+          </Typography>
+        </DialogContent>
+        <DialogActions sx={{ p: 2 }}>
+          <Button onClick={handleCloseTambah} disabled={submitting} sx={{ color: "#6B7280" }}>
+            Batal
+          </Button>
+          <Button
+            variant="contained"
+            onClick={handleSubmitTambah}
+            disabled={submitting}
+            sx={{ bgcolor: "#4F46E5", "&:hover": { bgcolor: "#4338CA" }, textTransform: "none" }}
+          >
+            {submitting ? "Menyimpan..." : "Simpan"}
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Modal Hapus Akun */}
+      <Dialog
+        open={openHapus}
+        onClose={handleCloseHapus}
+        maxWidth="xs"
+        fullWidth
+        PaperProps={{ sx: { borderRadius: 3 } }}
+      >
+        <DialogTitle sx={{ fontWeight: 700, pb: 1, color: "#1E1E2D" }}>
+          Hapus Akun
+        </DialogTitle>
+        <DialogContent dividers sx={{ pt: 2 }}>
+          <Typography variant="body2" sx={{ color: "#1E1E2D" }}>
+            Akun berikut akan dihapus:
+          </Typography>
+          <Typography variant="body2" sx={{ mt: 1, fontWeight: 600, color: "#1E1E2D" }}>
+            {hapusTarget?.nama || "-"}
+          </Typography>
+          <Typography variant="body2" sx={{ color: "#6B7280" }}>
+            {hapusTarget?.email || "-"}
+          </Typography>
+          <Typography variant="caption" sx={{ display: "block", mt: 2, color: "#B91C1C" }}>
+            Tindakan ini tidak dapat dibatalkan. Akun yang masih memiliki katalog
+            tidak dapat dihapus, karena kolom author memakai aturan ON DELETE RESTRICT.
+          </Typography>
+        </DialogContent>
+        <DialogActions sx={{ p: 2 }}>
+          <Button onClick={handleCloseHapus} disabled={submitting} sx={{ color: "#6B7280" }}>
+            Batal
+          </Button>
+          <Button
+            variant="contained"
+            color="error"
+            onClick={handleConfirmHapus}
+            disabled={submitting}
+            sx={{ textTransform: "none" }}
+          >
+            {submitting ? "Menghapus..." : "Hapus"}
+          </Button>
+        </DialogActions>
+      </Dialog>
 
       {/* Modal Edit Akun */}
       <Dialog
@@ -359,9 +611,11 @@ export default function KelolaAkun() {
               label="Role"
               onChange={(e) => setEditRole(e.target.value)}
             >
-              <MenuItem value="super_admin">Super Admin</MenuItem>
-              <MenuItem value="admin">Admin</MenuItem>
-              <MenuItem value="viewer">Viewer</MenuItem>
+              {ROLE_DAPAT_DIUBAH.map((peran) => (
+                <MenuItem key={peran} value={peran}>
+                  {LABEL_PERAN[peran] || peran}
+                </MenuItem>
+              ))}
             </Select>
           </FormControl>
 
