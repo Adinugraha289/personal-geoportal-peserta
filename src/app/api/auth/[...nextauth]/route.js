@@ -1,7 +1,7 @@
 import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import { verifyCredentials } from "../../../../../lib/auth/verifyCredentials";
-import { signAccessToken } from "../../../../../lib/auth/jwt";
+import { signAccessToken, verifyAccessToken } from "../../../../../lib/auth/jwt";
 
 export const authOptions = {
     providers: [
@@ -40,11 +40,29 @@ export const authOptions = {
                 token.accessToken = user.accessToken;
                 return token;
             }
-            // 2. Cek apakah Custom Bearer Token sudah expired/invalid
+            // 2. Periksa apakah Bearer token masih berlaku.
+            //
+            // Dua hal yang ditangani di sini: token yang sudah lewat masa
+            // berlaku, dan token yang tanda tangannya tidak sah. Keduanya
+            // wajar terjadi, dan keduanya dijawab dengan membuat token baru
+            // memakai data pengguna dari token NextAuth yang sudah
+            // diverifikasi.
+            //
+            // Galat lain sengaja dilempar, tidak ditelan. Sebelumnya catch
+            // ini menangkap SEMUA galat, sehingga kesalahan seperti fungsi
+            // yang salah tulis ikut dianggap token kedaluwarsa dan tidak
+            // pernah muncul di log.
             try {
-                verifyAccessToken(token.accessToken); // Cek validitas
+                verifyAccessToken(token.accessToken);
             } catch (err) {
-                // Jika expired, buat ulang Bearer Token baru menggunakan data user dari token NextAuth
+                const wajar =
+                    err?.name === "TokenExpiredError" ||
+                    err?.name === "JsonWebTokenError";
+
+                if (!wajar) {
+                    throw err;
+                }
+
                 token.accessToken = signAccessToken({
                     user_id: token.user_id,
                     email: token.email,

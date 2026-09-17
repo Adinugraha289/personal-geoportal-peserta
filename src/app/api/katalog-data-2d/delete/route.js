@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { Pool } from "pg";
-import { db } from "../../../../../lib/db"; // Pastikan Prisma Client kamu di-import di sini
+import { db } from "../../../../../lib/db";
+import { requireAuth } from "../../../../../lib/auth/verifyBearerToken";
 
 // Tabel pada berkas ini dibuat memakai tipe GEOMETRY tanpa awalan schema,
 // sehingga schema tempat PostGIS terpasang harus ada di search_path koneksi
@@ -48,6 +49,14 @@ const pool = new Pool({
  *   membersihkan DB, supaya "orphan record" tidak nyangkut di katalog.
  */
 export async function DELETE(request) {
+    // Menghapus katalog berarti menghapus layer dari GeoServer sekaligus
+    // men-DROP tabelnya di PostGIS. Keduanya tidak dapat dibatalkan, jadi
+    // endpoint ini hanya boleh dipakai admin dan super_admin.
+    const { error: authError, status: authStatus } = requireAuth(request, "admin");
+    if (authError) {
+        return NextResponse.json({ error: authError }, { status: authStatus });
+    }
+
     let dataId;
 
     try {

@@ -3,6 +3,7 @@ import { requireAuth } from "../../../../../lib/auth/verifyBearerToken";
 import { db } from "../../../../../lib/db";
 import bcrypt from "bcryptjs";
 import crypto from "crypto";
+import { ROLE_DAPAT_DIBUAT } from "../../../../../lib/auth/roles";
 
 export async function POST(request) {
     const { payload, error, status } = requireAuth(request, "super_admin");
@@ -11,7 +12,9 @@ export async function POST(request) {
     }
 
     const data = await request.json();
-    const allowedRoles = ["editor", "admin"]; // daftar role yang diizinkan untuk dibuat
+    // Daftar peran diambil dari roles.js supaya create dan update tidak
+    // memakai aturan yang berbeda.
+    const allowedRoles = ROLE_DAPAT_DIBUAT;
 
     if (data.role && !allowedRoles.includes(data.role)) {
         return NextResponse.json({ message: "Role tidak valid" }, { status: 400 });

@@ -231,11 +231,15 @@ export async function POST(request) {
 
 
 async function applyGeoServerLayerSecurity({ geoserverUrl, workspace, tableName, akses, isEditable, auth }) {
+    // CATATAN: ADMIN dan ROLE_ANONYMOUS di bawah ini adalah peran milik
+    // GeoServer, bukan peran aplikasi. Keduanya berbeda dan tidak saling
+    // memengaruhi. Peran aplikasi diatur di lib/auth/roles.js.
+
     // Tentukan role yang diberi izin Read & Write
     // Jika akses 'private', hanya ADMIN yang bisa Read. Jika 'public', ROLE_ANONYMOUS & ADMIN bisa Read.
     const readRoles = akses === "private" ? ["ADMIN"] : ["ROLE_ANONYMOUS", "ADMIN"];
 
-    // Jika isEditable = true, beri akses Write ke ADMIN (atau role editor sesuai kebutuhan aplikasi)
+    // Jika isEditable = true, beri akses Write ke ADMIN
     const writeRoles = isEditable ? ["ADMIN"] : [];
 
     const layerPattern = `${workspace}.${tableName}`;

@@ -56,7 +56,7 @@ Dua kolom yang menentukan perilaku login:
 - `password` menyimpan hash bcrypt, bukan kata sandi asli.
 - `is_active` bernilai `false` untuk setiap akun baru. Selama `false`, login ditolak dengan pesan yang meminta aktivasi.
 
-Nilai `role` dibatasi pada `viewer`, `editor`, `admin`, dan `super_admin`. Halaman pendaftaran selalu menghasilkan `editor`. Hanya `02-seed-super-admin.sql` yang bisa membuat `super_admin`, dan itu memang disengaja supaya tidak ada yang bisa menaikkan perannya sendiri.
+Nilai `role` dibatasi pada `viewer`, `admin`, dan `super_admin`. Halaman pendaftaran selalu menghasilkan `viewer`. Hanya `02-seed-super-admin.sql` yang bisa membuat `super_admin`, dan itu memang disengaja supaya tidak ada yang bisa menaikkan perannya sendiri.
 
 ### katalog_data_2d dan katalog_data_3d
 
