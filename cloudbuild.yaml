@@ -1,0 +1,38 @@
+substitutions:
+  _REGION: asia-southeast2
+  _REPOSITORY: katalog-images
+  # _IMAGE_NAME, _VM_NAME, dan _VM_ZONE sengaja tidak diberi nilai bawaan.
+  # Ketiganya wajib diisi pada substitution variable trigger. Tanpa nilai bawaan,
+  # build berhenti dengan pesan yang jelas daripada diam-diam memakai satu nama
+  # image bersama dan menimpa image milik asisten lain di Artifact Registry.
+
+steps:
+  - name: gcr.io/cloud-builders/docker
+    args:
+      - build
+      - -t
+      - ${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPOSITORY}/${_IMAGE_NAME}:$SHORT_SHA
+      - .
+
+  - name: gcr.io/cloud-builders/docker
+    args:
+      - push
+      - ${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPOSITORY}/${_IMAGE_NAME}:$SHORT_SHA
+
+  - name: gcr.io/cloud-builders/gcloud
+    entrypoint: bash
+    args:
+      - -c
+      - |
+        gcloud compute ssh "${_VM_NAME}" \
+          --zone="${_VM_ZONE}" \
+          --tunnel-through-iap \
+          --quiet \
+          --command="sudo gcloud auth print-access-token | sudo docker login -u oauth2accesstoken --password-stdin https://${_REGION}-docker.pkg.dev && cd '${_VM_APP_DIR}' && sudo sed -i 's|^NEXTJS_IMAGE=.*|NEXTJS_IMAGE=${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPOSITORY}/${_IMAGE_NAME}:$SHORT_SHA|' .env && sudo -H docker compose pull nextjs && sudo -H docker compose up -d && sudo -H docker compose exec -T nginx nginx -s reload"
+
+images:
+  - ${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPOSITORY}/${_IMAGE_NAME}:$SHORT_SHA
+
+options:
+  dynamicSubstitutions: true
+  logging: CLOUD_LOGGING_ONLY

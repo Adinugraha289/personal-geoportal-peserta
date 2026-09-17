@@ -1,0 +1,22 @@
+import L from 'leaflet';
+
+const markerIcon = new L.Icon({
+    iconUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
+    shadowUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png"
+});
+
+export function addPopup(map){
+
+    const marker = L.marker([], {
+        icon: markerIcon
+    });
+
+    marker.bindPopup(
+        `<b>Monas</b>
+        <br/> Lokasi: Jakarta Pusat<br/>
+        Kategori: Landmark` 
+     );
+     
+return marker;
+
+}

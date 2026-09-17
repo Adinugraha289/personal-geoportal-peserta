@@ -1,0 +1,44 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model users {
+  user_id         String            @id(map: "users_pk") @db.VarChar
+  email           String            @unique(map: "users_unique") @db.VarChar
+  password        String?           @db.VarChar
+  is_active       Boolean           @default(false)
+  role            String?           @db.VarChar
+  nama            String?           @db.VarChar
+  katalog_data_2d katalog_data_2d[]
+  katalog_data_3d katalog_data_3d[]
+}
+
+model katalog_data_2d {
+  data_2d_id  String   @id(map: "katalog_data_2d_pk") @db.VarChar
+  layer_name  String?  @db.VarChar
+  akses       String?  @db.VarChar
+  is_editable Boolean?
+  wms_url     String?  @db.VarChar
+  wfs_url     String?  @db.VarChar
+  author      String?  @db.VarChar
+  users       users?   @relation(fields: [author], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "katalog_data_2d_users_fk")
+}
+
+model katalog_data_3d {
+  data_3d_id String  @id(map: "katalog_data_3d_pk") @db.VarChar
+  author     String? @db.VarChar
+  nama       String? @db.VarChar
+  akses      String? @db.VarChar
+  url        String? @db.VarChar
+  latitude   Float?
+  longitude  Float?
+  heading    Int?
+  pitch      Int?
+  roll       Int?
+  users      users?  @relation(fields: [author], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "katalog_data_3d_users_fk")
+}
