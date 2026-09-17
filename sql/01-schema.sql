@@ -1,5 +1,5 @@
 -- =====================================================================
--- Praktik 6 - Management Database Non Spasial
+-- Skema database non spasial
 -- Membuat tiga tabel: users, katalog_data_2d, dan katalog_data_3d.
 --
 -- Cara pakai: buka SQL Editor di dashboard Supabase, salin SELURUH isi
@@ -17,7 +17,7 @@ BEGIN;
 -- ---------------------------------------------------------------------
 -- users
 -- Sumber kebenaran untuk autentikasi. Kolom mengikuti pemakaian di
--- Praktik 9 (lib/auth) dan Praktik 10 (NextAuth).
+-- Dipakai oleh lib/auth dan konfigurasi NextAuth.
 -- ---------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS users (
     user_id     uuid         PRIMARY KEY,
@@ -28,7 +28,7 @@ CREATE TABLE IF NOT EXISTS users (
     is_active   boolean      NOT NULL DEFAULT false,
     created_at  timestamptz  NOT NULL DEFAULT now(),
 
-    -- Baseline nilai. Validasi di Praktik 9 hanya ada di kode aplikasi,
+    -- Baseline nilai. Validasi hanya ada di kode aplikasi,
     -- sehingga batasan berikut ditambahkan di database supaya data tidak
     -- bisa masuk lewat jalur lain, misalnya import CSV atau klien database.
     CONSTRAINT users_email_key UNIQUE (email),
@@ -41,7 +41,7 @@ COMMENT ON COLUMN users.password IS
 
 -- ---------------------------------------------------------------------
 -- katalog_data_2d
--- Kolom mengikuti "Praktik 6/.../File latihan/katalog_data_2d.csv".
+-- Kolom mengikuti berkas contoh katalog_data_2d.csv.
 -- ---------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS katalog_data_2d (
     data_2d_id  uuid         PRIMARY KEY,
@@ -62,7 +62,7 @@ CREATE TABLE IF NOT EXISTS katalog_data_2d (
 
 -- ---------------------------------------------------------------------
 -- katalog_data_3d
--- Kolom mengikuti "Praktik 8/.../File latihan/katalog_data_3d.csv".
+-- Kolom mengikuti berkas contoh katalog_data_3d.csv.
 -- ---------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS katalog_data_3d (
     data_3d_id uuid         PRIMARY KEY,

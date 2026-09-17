@@ -167,7 +167,7 @@ Bila datastore dibuat sebelum PostGIS aktif, GeoServer menyimpan kegagalan itu. 
 
 ### Bila Anda pernah memakai PostgreSQL lokal
 
-Modul Praktik 6 untuk PostgreSQL lokal memuat dua perintah berikut:
+Panduan basis data lokal memuat dua perintah berikut:
 
 ```sql
 CREATE EXTENSION IF NOT EXISTS postgis;

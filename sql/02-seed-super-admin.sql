@@ -1,7 +1,7 @@
 -- =====================================================================
--- Praktik 6 - seed akun super admin
+-- Seed akun super admin
 --
--- Menggantikan langkah manual pada modul Praktik 9: jalankan potongan JS
+-- Menggantikan langkah manual berikut: jalankan potongan JS
 -- di REPL node, salin hash-nya, lalu tempel ke kolom password lewat SQL Editor.
 -- Cara itu gampang salah ketik dan tidak bisa diulang orang lain.
 --
