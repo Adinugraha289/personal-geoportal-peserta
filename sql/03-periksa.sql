@@ -14,10 +14,21 @@
 -- ---------------------------------------------------------------------
 -- 1. Semua constraint di tiga tabel, apa adanya
 --
--- Harapan setelah sql/01-schema.sql dijalankan:
---   users            10 baris  (p, u, c, dan 7 NOT NULL)
---   katalog_data_2d   8 baris
---   katalog_data_3d   8 baris
+-- Harapan setelah sql/01-schema.sql dijalankan. Jumlahnya BERBEDA menurut
+-- versi PostgreSQL, jadi perhatikan versi yang Anda pakai.
+--
+-- PostgreSQL 17 dan lebih lama, termasuk Supabase:
+--   users             3 baris  (1 primary key, 1 unique, 1 check)
+--   katalog_data_2d   4 baris  (1 primary key, 1 unique, 1 foreign key, 1 check)
+--   katalog_data_3d   6 baris  (1 primary key, 1 foreign key, 4 check)
+--
+-- PostgreSQL 18 dan lebih baru, termasuk PostgreSQL yang dipasang di laptop:
+--   jumlahnya lebih banyak, karena sejak versi 18 batasan NOT NULL ikut
+--   tercatat di pg_constraint dengan kode 'n'. Di versi sebelumnya, NOT NULL
+--   disimpan di pg_attribute dan tidak muncul pada query ini.
+--
+-- Jadi angka yang lebih kecil di Supabase BUKAN tanda ada yang salah. Yang
+-- penting, ketiga tabel muncul dan kolom check_ tidak bernilai nol.
 --
 -- Kode jenis: p primary key, u unique, f foreign key, c check, n not null
 -- ---------------------------------------------------------------------
