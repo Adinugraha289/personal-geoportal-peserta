@@ -135,7 +135,27 @@ export async function POST(request) {
         const { minx, miny, maxx, maxy } = bboxResult.rows[0];
 
         // 6. Publish Ke GeoServer
+        //
+        // Ada dua alamat GeoServer, dan keduanya berbeda keperluan:
+        //
+        //   GEOSERVER_URL         alamat DARI DALAM jaringan container, dipakai
+        //                         container ini untuk memanggil REST API
+        //                         GeoServer. Nilainya nama service, misalnya
+        //                         http://geoserver:8080/geoserver.
+        //
+        //   GEOSERVER_PUBLIC_URL  alamat YANG DILIHAT PESERTA, disimpan ke
+        //                         kolom wms_url dan wfs_url. Nilainya harus
+        //                         dapat dijangkau dari luar VM, karena peserta
+        //                         memakainya untuk membuka layer di QGIS atau
+        //                         aplikasi lain.
+        //
+        // Di laptop keduanya kebetulan sama. Di server berbeda, dan memakai
+        // satu nilai untuk keduanya membuat wms_url berisi nama service
+        // internal yang tidak dapat dijangkau browser.
         const geoserverUrl = process.env.GEOSERVER_URL;
+        const geoserverPublicUrl =
+            (process.env.GEOSERVER_PUBLIC_URL || "").trim().replace(/\/+$/, "") ||
+            geoserverUrl.replace(/\/+$/, "");
         const workspace = process.env.GEOSERVER_WORKSPACE;
         const existingDatastore = process.env.GEOSERVER_POSTGIS_DATASTORE;
         const auth = Buffer.from(`${process.env.GEOSERVER_USERNAME}:${process.env.GEOSERVER_PASSWORD}`).toString("base64");
@@ -187,8 +207,9 @@ export async function POST(request) {
         });
 
         // 7. Tentukan URL WMS dan WFS
-        const wmsUrl = `${geoserverUrl}/${workspace}/wms`;
-        const wfsUrl = `${geoserverUrl}/${workspace}/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=${workspace}:${tableName}&outputFormat=application/json`;
+        // Memakai alamat publik, karena kedua nilai ini disimpan untuk dilihat peserta.
+        const wmsUrl = `${geoserverPublicUrl}/${workspace}/wms`;
+        const wfsUrl = `${geoserverPublicUrl}/${workspace}/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=${workspace}:${tableName}&outputFormat=application/json`;
 
         // 8. Simpan Record ke Tabel katalog_data_2d & Include Data Author
         const newKatalogData = await db.katalog_data_2d.create({
