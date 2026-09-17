@@ -14,7 +14,7 @@ import GroupIcon from "@mui/icons-material/Group";
 // terjangkau oleh sebagian peran. Kartu seperti itu menampilkan keterangan,
 // bukan angka nol, supaya tidak terbaca sebagai "datanya kosong":
 //
-//   katalog-data-2d/list   editor       dan di atasnya
+//   katalog-data-2d/list   viewer       dan di atasnya
 //   katalog-data-3d/list   viewer       dan di atasnya
 //   users/list             super_admin  saja
 const KARTU = [
@@ -96,7 +96,7 @@ export default function Dashboard() {
         hasil.peta = daftar2d.filter((d) => d.wms_url).length;
         ket.peta =
           j2d === null
-            ? "Perlu izin editor"
+            ? "Perlu izin admin"
             : `${hasil.peta} dari ${j2d} layer punya alamat WMS`;
       }
 

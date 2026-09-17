@@ -4,7 +4,7 @@ import { db } from "../../../../../lib/db";
 
 export async function GET(request) {
     // 1. Validasi Autentikasi (Tambahkan parameter `request`)
-    const { payload, error, status } = requireAuth(request, "editor");
+    const { payload, error, status } = requireAuth(request, "viewer");
     if (error) {
         return NextResponse.json({ message: error }, { status });
     }

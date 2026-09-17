@@ -82,7 +82,7 @@ await db.users.create({
     nama: 'Uji Database',
     email: EMAIL_UJI,
     password: await bcrypt.hash(SANDI_UJI, 10),
-    role: 'editor',
+    role: 'viewer',
     is_active: false,
   },
 });
@@ -125,7 +125,7 @@ await db.users.update({ where: { email: EMAIL_UJI }, data: { is_active: true } }
 
 try {
   const user = await periksaLogin(EMAIL_UJI, SANDI_UJI);
-  catat('login setelah diaktifkan berhasil', user.role === 'editor', `role=${user.role}`);
+  catat('login setelah diaktifkan berhasil', user.role === 'viewer', `role=${user.role}`);
 } catch (e) {
   catat('login setelah diaktifkan berhasil', false, e.message);
 }
@@ -189,11 +189,27 @@ try {
   catat('role tidak sah ditolak', true, 'CHECK users_role_valid bekerja');
 }
 
+// "editor" pernah dipakai keliru sebagai peran bawaan untuk pengguna baru.
+// Peran itu sudah dihapus dari seluruh sistem, jadi database harus
+// menolaknya. Uji ini menjaga supaya peran itu tidak masuk lagi tanpa
+// disadari.
+try {
+  await db.users.create({
+    data: {
+      user_id: crypto.randomUUID(), nama: 'Uji', email: 'editor@contoh.local',
+      password: 'x', role: 'editor', is_active: true,
+    },
+  });
+  catat('role editor ditolak', false, 'peran editor masih diterima database');
+} catch {
+  catat('role editor ditolak', true, 'peran editor tidak lagi dikenal');
+}
+
 try {
   await db.users.create({
     data: {
       user_id: crypto.randomUUID(), nama: 'Uji', email: EMAIL_UJI,
-      password: 'x', role: 'editor', is_active: true,
+      password: 'x', role: 'viewer', is_active: true,
     },
   });
   catat('email ganda ditolak', false, 'seharusnya ditolak database');

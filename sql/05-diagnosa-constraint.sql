@@ -86,7 +86,7 @@ FROM users;
 SELECT '5. Role di luar daftar (harus kosong)' AS bagian;
 SELECT role, count(*) AS jumlah
 FROM users
-WHERE role IS NULL OR role NOT IN ('viewer', 'editor', 'admin', 'super_admin')
+WHERE role IS NULL OR role NOT IN ('viewer', 'admin', 'super_admin')
 GROUP BY role;
 
 -- ---------------------------------------------------------------------

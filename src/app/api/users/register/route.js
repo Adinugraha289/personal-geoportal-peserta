@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { db } from "../../../../../lib/db";
 import bcrypt from "bcryptjs";
+import { ROLE_BAWAAN } from "../../../../../lib/auth/roles";
 
 export async function POST(request) {
     try {
@@ -39,7 +40,9 @@ export async function POST(request) {
                 nama: data.nama,
                 email: data.email,
                 password: hashedPassword,
-                role: "editor", // Default role
+                // Peran tidak diambil dari input, sehingga pendaftaran mandiri
+                // tidak dapat meminta peran yang lebih tinggi.
+                role: ROLE_BAWAAN,
                 is_active: false, // Default status non-aktif
             },
         });

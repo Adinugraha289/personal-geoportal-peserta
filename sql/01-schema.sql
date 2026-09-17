@@ -24,7 +24,7 @@ CREATE TABLE IF NOT EXISTS users (
     nama        varchar(100) NOT NULL,
     email       varchar(150) NOT NULL,
     password    varchar(255) NOT NULL,
-    role        varchar(20)  NOT NULL DEFAULT 'editor',
+    role        varchar(20)  NOT NULL DEFAULT 'viewer',
     is_active   boolean      NOT NULL DEFAULT false,
     created_at  timestamptz  NOT NULL DEFAULT now(),
 
@@ -33,7 +33,7 @@ CREATE TABLE IF NOT EXISTS users (
     -- bisa masuk lewat jalur lain, misalnya import CSV atau klien database.
     CONSTRAINT users_email_key UNIQUE (email),
     CONSTRAINT users_role_valid
-        CHECK (role IN ('viewer', 'editor', 'admin', 'super_admin'))
+        CHECK (role IN ('viewer', 'admin', 'super_admin'))
 );
 
 COMMENT ON COLUMN users.password IS

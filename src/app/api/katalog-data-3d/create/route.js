@@ -22,6 +22,10 @@ export async function POST(request) {
         const heading = formData.get("heading") || 0;
         const pitch = formData.get("pitch") || 0;
         const roll = formData.get("roll") || 0;
+        // Nilai bawaan 100 dipakai bila form tidak mengirim scale. Angka itu
+        // sama dengan yang sebelumnya ditulis tetap di halaman pratinjau,
+        // sehingga data lama tetap tampil dengan ukuran yang sama.
+        const scale = formData.get("scale") || 100;
 
         if (!file) {
             return NextResponse.json({ message: "File 3D tidak boleh kosong" }, { status: 400 });
@@ -64,6 +68,7 @@ export async function POST(request) {
                 heading: parseFloat(heading),
                 pitch: parseFloat(pitch),
                 roll: parseFloat(roll),
+                scale: parseFloat(scale),
                 author: payload.id,
             },
         });

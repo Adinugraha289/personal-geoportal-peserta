@@ -111,8 +111,12 @@ export default function KelolaAkun() {
     setSubmitting(true);
 
     try {
+      // Metode PATCH, sama dengan yang diekspor endpoint users/update dan
+      // sama dengan koleksi Postman. Sebelumnya POST, sehingga setelah
+      // endpoint dibetulkan menjadi PATCH, penyimpanan dari halaman ini
+      // menerima 405 dan perubahan tidak tersimpan.
       const response = await fetch("/portal/api/users/update", {
-        method: "POST",
+        method: "PATCH",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${session.accessToken}`,

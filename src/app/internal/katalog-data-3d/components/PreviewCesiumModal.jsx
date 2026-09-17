@@ -103,11 +103,35 @@ export default function PreviewCesiumModal({ openPreview, item }) {
 
             // 4. Tambahkan Model 3D
             const position = Cesium.Cartesian3.fromDegrees(lon, lat, 0);
+
+            // Ukuran diambil dari nilai yang tersimpan bersama data. Nilai
+            // 100 hanya dipakai sebagai cadangan untuk data lama yang belum
+            // punya nilai scale.
+            const skalaModel = Number(item.scale) > 0 ? Number(item.scale) : 100;
+
+            // Arah dan kemiringan juga diambil dari data tersimpan, dengan
+            // nilai bawaan 0. Sebelumnya ketiganya tidak dipakai di sini,
+            // sehingga isian Arah pada form tidak berpengaruh apa pun pada
+            // model yang ditampilkan.
+            const headingModel = Number(item.heading) || 0;
+            const pitchModel = Number(item.pitch) || 0;
+            const rollModel = Number(item.roll) || 0;
+
+            const orientasiModel = Cesium.Transforms.headingPitchRollQuaternion(
+                position,
+                new Cesium.HeadingPitchRoll(
+                    Cesium.Math.toRadians(headingModel),
+                    Cesium.Math.toRadians(pitchModel),
+                    Cesium.Math.toRadians(rollModel)
+                )
+            );
+
             const modelEntity = viewer.entities.add({
                 position,
+                orientation: orientasiModel,
                 model: {
                     uri: `${item.url}?access_token=${session?.data?.accessToken}`,
-                    scale: 100.0,
+                    scale: skalaModel,
                     heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
                 },
             });

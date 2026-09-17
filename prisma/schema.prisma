@@ -7,6 +7,12 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+// Tiga kolom sempat tidak tercantum di berkas ini walaupun sudah ada di
+// database: users.created_at, katalog_data_3d.scale, dan
+// katalog_data_3d.tipe_file. Akibatnya Prisma menolak membacanya dengan
+// "Unknown field", sehingga kolom itu tidak dapat dipakai aplikasi.
+// Ketiganya sudah ditambahkan di bawah.
+
 model users {
   user_id         String            @id(map: "users_pk") @db.VarChar
   email           String            @unique(map: "users_unique") @db.VarChar
@@ -14,6 +20,7 @@ model users {
   is_active       Boolean           @default(false)
   role            String?           @db.VarChar
   nama            String?           @db.VarChar
+  created_at      DateTime?         @db.Timestamptz
   katalog_data_2d katalog_data_2d[]
   katalog_data_3d katalog_data_3d[]
 }
@@ -37,8 +44,13 @@ model katalog_data_3d {
   url        String? @db.VarChar
   latitude   Float?
   longitude  Float?
-  heading    Int?
-  pitch      Int?
-  roll       Int?
+  // heading, pitch, dan roll disimpan sebagai double precision di database,
+  // sedangkan tipe Int di Prisma hanya menampung bilangan bulat. Sudah
+  // dicocokkan menjadi Float supaya sudut pecahan tidak terpotong.
+  heading    Float?
+  pitch      Float?
+  roll       Float?
+  scale      Float?
+  tipe_file  String? @db.VarChar
   users      users?  @relation(fields: [author], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "katalog_data_3d_users_fk")
 }
