@@ -211,7 +211,7 @@ Setelah itu jalankan `01-schema.sql` lagi.
 
 Periksa berurutan:
 
-1. **`DATABASE_URL` salah.** Pesan galatnya menyebut `Can't reach database server`. Periksa bagian "Koneksi ke Supabase" pada README utama.
+1. **`DATABASE_URL` salah.** Pesan galatnya menyebut `Can't reach database server`. Periksa bagian "Koneksi ke Supabase" pada README utama. Bila memakai port 6543, pastikan ada `?pgbouncer=true` di akhir alamatnya.
 2. **Tabel belum ada.** Jalankan `03-periksa.sql`. Hasilnya harus menampilkan tiga tabel.
 3. **Akun belum aktif.** Jalankan di SQL Editor:
    ```sql

@@ -98,25 +98,35 @@ Setelah portal berjalan di laptop, lanjutkan ke tahap deployment di Google Cloud
 
 ## Koneksi ke Supabase
 
-Satu bagian ini sering salah, jadi dibaca pelan-pelan.
-
-Supabase menyediakan tiga bentuk connection string, dan **hanya satu yang bekerja** dengan Prisma:
+Supabase menyediakan tiga bentuk connection string. Ketiganya dapat dipakai, dengan satu syarat pada bentuk kedua.
 
 | Bentuk | Port | Hasil |
 |---|---|---|
-| `db.<ref>.supabase.co` | 5432 | Gagal. Pada project baru host ini hanya punya alamat IPv6 |
-| `aws-0-<region>.pooler.supabase.com` | 6543 | Gagal. Transaction pooler tidak mendukung prepared statement yang dipakai Prisma |
-| **`aws-0-<region>.pooler.supabase.com`** | **5432** | **Bekerja. Ini yang dipakai** |
+| Session pooler | 5432 | Bekerja apa adanya |
+| Transaction pooler | 6543 | Bekerja, tetapi **wajib** memakai `?pgbouncer=true` |
+| Koneksi langsung `db.<ref>.supabase.co` | 5432 | Sering gagal pada project baru, karena hostnya hanya punya alamat IPv6 |
 
-Perhatikan juga bentuk nama penggunanya, yaitu `postgres.<ref>`, bukan `postgres` saja. `<ref>` adalah Reference ID project yang terlihat pada URL dashboard.
-
-Contoh lengkap:
+Yang disarankan **Session pooler pada port 5432**, karena paling sedikit syaratnya.
 
 ```
-DATABASE_URL="postgresql://postgres.abcdefghijklm:kata-sandi-anda@aws-0-ap-southeast-1.pooler.supabase.com:5432/postgres"
+DATABASE_URL="postgresql://postgres.abcdefghijklm:[YOUR-PASSWORD]@aws-0-ap-southeast-1.pooler.supabase.com:5432/postgres"
 ```
+
+Bila memakai Transaction pooler, sertakan parameternya:
+
+```
+DATABASE_URL="postgresql://postgres.abcdefghijklm:[YOUR-PASSWORD]@aws-0-ap-southeast-1.pooler.supabase.com:6543/postgres?pgbouncer=true"
+```
+
+Perhatikan bentuk nama penggunanya, yaitu `postgres.<ref>`, bukan `postgres` saja. `<ref>` adalah Reference ID project yang terlihat pada URL dashboard.
 
 Kalau kata sandi Anda memuat karakter khusus seperti `@` atau `#`, tulis dalam bentuk persen: `%40` dan `%23`.
+
+### DIRECT_URL tidak diperlukan
+
+Supabase menampilkan dua baris pada halaman connection string, `DATABASE_URL` dan `DIRECT_URL`. Untuk aplikasi ini, **hanya `DATABASE_URL` yang dipakai.**
+
+Alasannya, tabel dibuat lewat skrip di folder `sql/`, bukan lewat `prisma migrate`. Tidak ada migrasi yang membutuhkan koneksi langsung, dan `prisma/schema.prisma` tidak memuat `directUrl`.
 
 ## Perintah
 
