@@ -2,15 +2,32 @@ import { NextResponse } from "next/server";
 import { Pool } from "pg";
 import { db } from "../../../../../lib/db"; // Pastikan Prisma Client kamu di-import di sini
 
+// Tabel pada berkas ini dibuat memakai tipe GEOMETRY tanpa awalan schema,
+// sehingga schema tempat PostGIS terpasang harus ada di search_path koneksi
+// ini. Tanpa itu, pembuatan tabel gagal dengan
+// "type \"geometry\" does not exist", dan unggahan selalu berakhir 500.
+//
+// PENTING: nilai POSTGIS_SCHEMA harus sama dengan schema tempat PostGIS
+// dipasang. Di Supabase, PostGIS paling aman dipasang di schema public.
+const DB_SCHEMA = (process.env.POSTGIS_SCHEMA || "gis").trim();
+
+// Nama schema disisipkan ke opsi koneksi, dan juga ke dalam SQL pada berkas
+// ini, jadi bentuknya diperiksa lebih dahulu.
+if (!/^[a-z_][a-z0-9_]*$/.test(DB_SCHEMA)) {
+    throw new Error(
+        `POSTGIS_SCHEMA tidak sah: "${DB_SCHEMA}". ` +
+        "Gunakan huruf kecil, angka, dan garis bawah, misalnya gis."
+    );
+}
+
 const pool = new Pool({
     host: process.env.POSTGIS_HOST,
     port: parseInt(process.env.POSTGIS_PORT),
     user: process.env.POSTGIS_USER,
     password: process.env.POSTGIS_PASSWORD,
     database: process.env.POSTGIS_DB,
+    options: `-c search_path=${DB_SCHEMA},public,extensions`,
 });
-
-const DB_SCHEMA = process.env.POSTGIS_SCHEMA;
 
 /**
  * DELETE /api/.../[id]  (atau sesuaikan dengan cara kamu mengambil id)
