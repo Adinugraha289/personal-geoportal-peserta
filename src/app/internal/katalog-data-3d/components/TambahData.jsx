@@ -87,10 +87,19 @@ const TambahData = ({ form, setForm, handleCloseCreate, getData, accessToken }) 
             // Keempat nilai ini sebelumnya ditulis tetap di sini, sehingga
             // isian pada form tidak pernah berpengaruh. Sekarang nilainya
             // diambil dari form.
-            formData.append("heading", form.heading ?? 0);
-            formData.append("pitch", form.pitch ?? 0);
-            formData.append("roll", form.roll ?? 0);
-            formData.append("scale", form.scale ?? 100);
+            //
+            // Dibulatkan ke bilangan bulat karena kolom heading, pitch, roll,
+            // dan scale pada sebagian database bertipe integer. Mengirim nilai
+            // pecahan ke kolom integer ditolak dengan
+            // "invalid input syntax for type integer".
+            const bulat = (nilai, bawaan) => {
+                const n = Number(nilai);
+                return Number.isFinite(n) ? Math.round(n) : bawaan;
+            };
+            formData.append("heading", bulat(form.heading, 0));
+            formData.append("pitch", bulat(form.pitch, 0));
+            formData.append("roll", bulat(form.roll, 0));
+            formData.append("scale", Math.max(1, bulat(form.scale, 100)));
 
             const response = await fetch("/portal/api/katalog-data-3d/create", {
                 method: "POST",
@@ -225,6 +234,7 @@ const TambahData = ({ form, setForm, handleCloseCreate, getData, accessToken }) 
                         type="number"
                         fullWidth
                         value={form?.scale ?? 100}
+                        inputProps={{ step: 1, min: 1 }}
                         onChange={(e) =>
                             setForm &&
                             setForm((f) => ({
@@ -232,7 +242,7 @@ const TambahData = ({ form, setForm, handleCloseCreate, getData, accessToken }) 
                                 scale: e.target.value,
                             }))
                         }
-                        helperText="Ukuran model. Nilai bawaan 100."
+                        helperText="Bilangan bulat. Nilai bawaan 100."
                         sx={{
                             "& .MuiInputBase-input": { color: "#1F2937" },
                             "& .MuiInputLabel-root": { color: "#6B7280" },
@@ -251,6 +261,7 @@ const TambahData = ({ form, setForm, handleCloseCreate, getData, accessToken }) 
                         type="number"
                         fullWidth
                         value={form?.heading ?? 0}
+                        inputProps={{ step: 1, min: 0, max: 360 }}
                         onChange={(e) =>
                             setForm &&
                             setForm((f) => ({
@@ -258,7 +269,7 @@ const TambahData = ({ form, setForm, handleCloseCreate, getData, accessToken }) 
                                 heading: e.target.value,
                             }))
                         }
-                        helperText="Derajat, 0 sampai 360."
+                        helperText="Bilangan bulat, 0 sampai 360 derajat."
                         sx={{
                             "& .MuiInputBase-input": { color: "#1F2937" },
                             "& .MuiInputLabel-root": { color: "#6B7280" },

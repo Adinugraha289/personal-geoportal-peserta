@@ -49,7 +49,6 @@ export async function POST(request) {
                 email: true,
                 role: true,
                 is_active: true,
-                created_at: true,
             },
         });
 
