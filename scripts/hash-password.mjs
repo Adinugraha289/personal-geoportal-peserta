@@ -27,7 +27,7 @@
 //
 // Hasil bisa langsung dipakai:
 //   psql "$DATABASE_URL" -v hash="$(node hash-password.mjs)" \
-//        -v email=admin@example.com -f 02_seed_super_admin.sql
+//        -v email=admin@example.com -f sql/02-seed-super-admin.sql
 // =====================================================================
 
 import { createInterface } from 'node:readline';
@@ -152,6 +152,6 @@ console.error(`Pustaka : ${bcrypt.nama}, cost ${cost}, ${durasi} ms`);
 console.error('');
 console.error('Pakai hash ini untuk mengisi kolom password, misalnya:');
 console.error('  psql "$DATABASE_URL" -v email=admin@example.com \\');
-console.error(`       -v hash='${hash.slice(0, 10)}...' -f "Praktik 6/sql/02_seed_super_admin.sql"`);
+console.error(`       -v hash='${hash.slice(0, 10)}...' -f "sql/02-seed-super-admin.sql"`);
 console.error('');
 console.error('Jangan pernah menyimpan password polos ke kolom password.');

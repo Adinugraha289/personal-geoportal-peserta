@@ -77,7 +77,7 @@ BEGIN
     RAISE NOTICE 'Akun super admin % siap dipakai.', lower(btrim(email_admin));
 END $$;
 
--- Bila tabel users belum ada, jalankan 05_skema-siap-import.sql lebih dahulu.
+-- Bila tabel users belum ada, jalankan sql/01-schema.sql lebih dahulu.
 
 -- =====================================================================
 -- VERIFIKASI

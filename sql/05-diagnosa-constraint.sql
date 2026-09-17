@@ -13,7 +13,7 @@
 --   akan menjalankan satu pernyataan.
 --
 -- Cara pakai di psql:
---   psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f 00_diagnosa.sql
+--   psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f 05-diagnosa-constraint.sql
 --
 -- Hasilnya sepuluh tabel kecil. Cocokkan dengan tabel keputusan di bawah.
 -- =====================================================================
@@ -158,12 +158,12 @@ WHERE user_id IN ('ae5c7b2e-3537-4e94-ae1c-7596f1185f28',
 -- +---------------------------------------------+---------------------------+
 -- | Gejala                                      | Berkas perbaikan          |
 -- +---------------------------------------------+---------------------------+
--- | users belum ada (bagian 1 dan 9 kosong)      | 05_skema-siap-import.sql  |
--- | email kembar terisi (bagian 3)               | 03_perbaikan-email.sql    |
--- | email NULL atau kosong (bagian 4)            | 03_perbaikan-email.sql    |
--- | role di luar daftar terisi (bagian 5)        | 03_perbaikan-email.sql    |
+-- | users belum ada (bagian 1 dan 9 kosong)      | sql/01-schema.sql         |
+-- | email kembar terisi (bagian 3)               | 03-periksa.sql    |
+-- | email NULL atau kosong (bagian 4)            | 03-periksa.sql    |
+-- | role di luar daftar terisi (bagian 5)        | 03-periksa.sql    |
 -- | author tanpa induk terisi (bagian 7)         | 04_perbaikan-katalog-2d   |
--- | penulis CSV belum ada (bagian 10 kurang 2)   | 05_skema-siap-import.sql  |
+-- | penulis CSV belum ada (bagian 10 kurang 2)   | sql/01-schema.sql         |
 -- +---------------------------------------------+---------------------------+
 --
 -- Bila bagian 3, 4, 5, 7, dan 8 semuanya kosong, dan bagian 10 berisi dua

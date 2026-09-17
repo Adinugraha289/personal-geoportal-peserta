@@ -6,7 +6,8 @@
 --   psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f 01_schema_users_katalog.sql
 --
 -- File ini idempoten: CREATE TABLE IF NOT EXISTS tidak menghapus data yang ada.
--- Untuk mulai dari nol, jalankan 00_reset.sql lebih dahulu (drop tabel).
+-- Untuk mulai dari nol, hapus dulu ketiga tabelnya. Perintahnya ada pada
+-- bagian "Mengosongkan Tabel" di sql/README.md.
 -- =====================================================================
 
 BEGIN;
@@ -34,7 +35,7 @@ CREATE TABLE IF NOT EXISTS users (
 );
 
 COMMENT ON COLUMN users.password IS
-    'Hash bcrypt ($2a$/$2b$), BUKAN password asli. Seed manual lewat 02_seed_super_admin.sql.';
+    'Hash bcrypt ($2a$/$2b$), BUKAN password asli. Seed manual lewat 02-seed-super-admin.sql.';
 
 -- ---------------------------------------------------------------------
 -- katalog_data_2d

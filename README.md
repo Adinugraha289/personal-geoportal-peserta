@@ -11,7 +11,7 @@ Repositori ini adalah titik awal peserta. Konfigurasi deploy sudah tersedia di d
 | `src/` | Kode halaman dan endpoint API |
 | `lib/` | Autentikasi, koneksi database, dan fungsi pendukung |
 | `prisma/` | Definisi model database, dibaca Prisma Client |
-| `sql/` | Skrip SQL untuk menyiapkan tabel di Supabase. Mulai dari [sql/README.md](sql/README.md) |
+| `sql/` | Skrip SQL untuk menyiapkan tabel di Supabase. Urutannya ada di [sql/README.md](sql/README.md) |
 | `scripts/` | Pemeriksa konfigurasi dan pembuat hash kata sandi |
 | `Dockerfile` | Cara aplikasi dibangun menjadi image container |
 | `docker-compose.yml` | Tiga service: `nextjs`, `geoserver`, `nginx` |

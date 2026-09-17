@@ -14,7 +14,7 @@
 -- ---------------------------------------------------------------------
 -- 1. Semua constraint di tiga tabel, apa adanya
 --
--- Harapan pada PostgreSQL 18 setelah 05_skema-siap-import.sql dijalankan:
+-- Harapan setelah sql/01-schema.sql dijalankan:
 --   users            10 baris  (p, u, c, dan 7 NOT NULL)
 --   katalog_data_2d   8 baris
 --   katalog_data_3d   8 baris
@@ -99,5 +99,5 @@ WHERE NOT EXISTS (
 )
 ORDER BY s.tabel, s.nama;
 
--- Bila bagian 4 berisi baris, jalankan 05_skema-siap-import.sql. Berkas
+-- Bila bagian 4 berisi baris, jalankan sql/01-schema.sql. Berkas
 -- itu aman dijalankan berulang dan hanya menambahkan yang belum ada.
