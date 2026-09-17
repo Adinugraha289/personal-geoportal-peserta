@@ -2,7 +2,7 @@
 // =====================================================================
 // hash-password.mjs
 //
-// Menggantikan langkah manual di Praktik 8 dan Praktik 9:
+// Menggantikan langkah manual berikut:
 //
 //   node        # masuk REPL
 //   const bcrypt = require('bcryptjs');

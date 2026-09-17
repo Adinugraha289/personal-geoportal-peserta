@@ -1,5 +1,5 @@
 -- =====================================================================
--- Praktik 6 - diagnosa kegagalan constraint
+-- Diagnosa kegagalan constraint
 --
 -- Mencari sebab kegagalan constraint TANPA mengubah data apa pun.
 -- Semua di sini hanya SELECT.

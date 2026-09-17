@@ -1,7 +1,7 @@
 -- =====================================================================
--- Praktik 6 - membuat data spasial di schema gis pada Supabase
+-- Membuat data spasial di schema gis pada Supabase
 --
--- Modul Praktik 6 memuat satu perintah yang benar untuk PostgreSQL lokal,
+-- Panduan basis data spasial memuat satu perintah yang benar untuk PostgreSQL lokal,
 -- tetapi tidak berlaku apa adanya di Supabase:
 --
 --   ALTER DATABASE namadatabase SET search_path TO gis, public;
@@ -24,7 +24,7 @@
 --
 --   Bagian 1  diagnosa          hanya SELECT, tidak mengubah apa pun
 --   Bagian 2  perbaikan         menyertakan schema PostGIS ke search_path
---   Bagian 3  pembersihan       menghapus wrapper rusak dari modul Praktik 8
+--   Bagian 3  pembersihan       menghapus wrapper rusak dari panduan lama
 --   Bagian 4  uji fungsi        membuktikan jalur QGIS sudah jalan
 --
 -- Jalankan di SQL Editor Supabase.
@@ -193,7 +193,7 @@ END $$;
 -- =====================================================================
 -- BAGIAN 3 - PEMBERSIHAN WRAPPER DARI MODUL PRAKTIK 8
 --
--- Modul Praktik 8 meminta membuat fungsi public.addgeometrycolumn dan
+-- Panduan lama meminta membuat fungsi public.addgeometrycolumn dan
 -- gis.addgeometrycolumn sebagai pengganti. Baris cadangan di dalamnya
 -- memanggil public.AddGeometryColumn dengan enam argumen, sementara fungsi
 -- itu sendiri dideklarasikan dengan tujuh argumen tanpa nilai bawaan.
@@ -230,7 +230,7 @@ BEGIN
         WHERE p.proname = 'addgeometrycolumn'
           AND n.nspname IN ('public', 'gis')
           -- Fungsi PostGIS selalu membawa argumen use_typmod. Fungsi dari
-          -- modul Praktik 8 tidak. Syarat ini mempersempit sasaran ke
+          -- panduan lama tidak. Syarat ini mempersempit sasaran ke
           -- fungsi yang memang dibuat mengikuti modul itu.
           AND pg_get_function_identity_arguments(p.oid) NOT LIKE '%use_typmod%'
           AND NOT EXISTS (
@@ -268,7 +268,7 @@ BEGIN
         SELECT AddGeometryColumn('gis', 'uji_prasyarat_qgis', 'geom', 4326, 'POINT', 2)
           INTO hasil;
         RAISE NOTICE 'BERHASIL: %', hasil;
-        RAISE NOTICE 'Jalur QGIS sudah benar. Ulangi langkah Praktik 6 di QGIS.';
+        RAISE NOTICE 'Jalur QGIS sudah benar. Ulangi langkah PostGIS di QGIS.';
     EXCEPTION WHEN OTHERS THEN
         RAISE NOTICE 'GAGAL: % (SQLSTATE %)', SQLERRM, SQLSTATE;
         RAISE NOTICE 'Kirimkan baris GAGAL ini supaya sebabnya bisa dipastikan.';
@@ -295,7 +295,7 @@ SELECT current_setting('search_path') AS search_path_sekarang;
 -- | function addgeometrycolumn(...) does not exist               | PostGIS di luar search_path  | Bagian 2 |
 -- | type "geometry" does not exist                               | sama                         | Bagian 2 |
 -- | function st_srid / st_makepoint / st_astext ... does not exist| sama                        | Bagian 2 |
--- | function public.addgeometrycolumn(character varying, ...)    | wrapper modul Praktik 8      | Bagian 2, lalu Bagian 3 |
+-- | function public.addgeometrycolumn(character varying, ...)    | wrapper panduan lama      | Bagian 2, lalu Bagian 3 |
 -- |   does not exist                                               | dipanggil dengan 6 argumen   |          |
 -- | permission denied for schema gis                             | peran koneksi bukan pemilik  | GRANT USAGE, CREATE ON SCHEMA gis TO <peran>; |
 -- | new row violates row-level security policy                   | RLS aktif pada tabel spasial | ALTER TABLE gis.<tabel> DISABLE ROW LEVEL SECURITY; |

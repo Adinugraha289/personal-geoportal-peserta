@@ -1,5 +1,5 @@
 -- =====================================================================
--- Praktik 6 - periksa constraint yang benar-benar terpasang
+-- Periksa constraint yang benar-benar terpasang
 --
 -- Tempel seluruh isi berkas ini ke SQL Editor Supabase, lalu klik Run.
 -- Semua di sini hanya SELECT. Tidak mengubah apa pun.

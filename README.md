@@ -94,7 +94,7 @@ Buka [http://localhost:3000/portal](http://localhost:3000/portal), lalu masuk me
 
 ### 6. Deployment ke VM
 
-Setelah portal berjalan di laptop, lanjutkan ke tahap deployment di Google Cloud. Panduannya ada di modul Praktik 11 pada situs materi pelatihan.
+Setelah portal berjalan di laptop, lanjutkan ke tahap deployment di Google Cloud. Panduannya ada pada halaman Deployment Project di situs materi pelatihan.
 
 ## Koneksi ke Supabase
 

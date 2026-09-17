@@ -7,11 +7,25 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// Tiga kolom sempat tidak tercantum di berkas ini walaupun sudah ada di
-// database: users.created_at, katalog_data_3d.scale, dan
-// katalog_data_3d.tipe_file. Akibatnya Prisma menolak membacanya dengan
-// "Unknown field", sehingga kolom itu tidak dapat dipakai aplikasi.
-// Ketiganya sudah ditambahkan di bawah.
+// Kolom katalog_data_3d.scale dan katalog_data_3d.tipe_file sempat tidak
+// tercantum di berkas ini walaupun sudah ada di database. Akibatnya Prisma
+// menolak membacanya dengan "Unknown field", sehingga kolom itu tidak dapat
+// dipakai aplikasi. Keduanya sudah ditambahkan di bawah.
+//
+// CATATAN tentang users.created_at
+//
+// Kolom itu sengaja TIDAK dicantumkan di sini, walaupun ada di
+// sql/01-schema.sql. Alasannya, sebagian database dibuat tanpa kolom itu,
+// dan Prisma menolak seluruh query bila modelnya memuat kolom yang tidak ada:
+//
+//   column "created_at" does not exist
+//
+// Kolom yang ada di database tetapi tidak ada di model tidak menimbulkan
+// masalah, karena Prisma hanya menyebut kolom yang dikenalinya. Jadi dengan
+// tidak mencantumkannya, berkas ini bekerja pada database yang punya kolom
+// itu maupun yang tidak.
+//
+// Nilai created_at tetap terisi otomatis oleh DEFAULT now() pada database.
 
 model users {
   user_id         String            @id(map: "users_pk") @db.VarChar
@@ -20,7 +34,6 @@ model users {
   is_active       Boolean           @default(false)
   role            String?           @db.VarChar
   nama            String?           @db.VarChar
-  created_at      DateTime?         @db.Timestamptz
   katalog_data_2d katalog_data_2d[]
   katalog_data_3d katalog_data_3d[]
 }
