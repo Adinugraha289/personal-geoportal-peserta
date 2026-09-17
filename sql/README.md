@@ -160,23 +160,39 @@ Urutannya berpengaruh, karena GeoServer menyimpan kegagalan koneksi pertamanya.
 
 Bila datastore dibuat sebelum PostGIS aktif, GeoServer menyimpan kegagalan itu. Hapus lalu buat ulang datastore-nya setelah PostGIS aktif.
 
-### Mengapa mengunci search_path tidak diperlukan
+### Bila Anda pernah memakai PostgreSQL lokal
 
-Modul Praktik 6 memuat perintah berikut untuk PostgreSQL lokal:
+Modul Praktik 6 untuk PostgreSQL lokal memuat dua perintah berikut:
 
 ```sql
-ALTER DATABASE namadatabase SET search_path TO gis, public;
+CREATE EXTENSION IF NOT EXISTS postgis;
+ALTER DATABASE geoportal SET search_path TO gis, public;
+SHOW search_path;
 ```
 
-Perintah itu tidak diperlukan di Supabase. Yang memunculkan galat justru mengunci `search_path` sehingga schema tempat PostGIS berada keluar dari jangkauan:
+Di PostgreSQL lokal, dua perintah itu membuat PostGIS dan tabel spasial sama-sama terjangkau, meskipun PostGIS dipasang di schema `gis`. Perintah `ALTER DATABASE` di situ bekerja, dan hasil `SHOW search_path` menampilkan `gis, public`.
 
-```
-SET search_path TO gis, public;
-CREATE TABLE uji (geom geometry(Point,4326));
-ERROR:  type "geometry" does not exist
-```
+**Di Supabase, `ALTER DATABASE` itu tidak berpengaruh.** Supabase menetapkan `search_path` pada tingkat koneksi lewat connection pooler, dan setelan tingkat koneksi selalu menang atas setelan tingkat database. Anda dapat memeriksanya sendiri: setelah menjalankan `ALTER DATABASE`, koneksi baru tetap melaporkan `"$user", public, extensions`.
 
-`04-postgis-supabase.sql` disediakan untuk memeriksa di schema mana PostGIS benar-benar mendarat.
+Akibatnya, PostGIS yang dipasang di schema `gis` tidak terjangkau di Supabase, dan dua hal ini gagal:
+
+| Yang gagal | Pesan galat |
+|---|---|
+| Aplikasi membuat tabel spasial | `type "geometry" does not exist` |
+| GeoServer membuka datastore | `function postgis_lib_version() does not exist` |
+
+Karena itu di Supabase PostGIS dipasang di schema `public`, bukan di `gis`. Tabel spasialnya tetap di `gis`, sesuai susunan pada bagian di atas.
+
+### Ringkasan perbedaan
+
+| | PostgreSQL lokal | Supabase |
+|---|---|---|
+| PostGIS dipasang di | `gis` | `public` |
+| Tabel spasial di | `gis` | `gis` |
+| Cara membuatnya terjangkau | `ALTER DATABASE ... SET search_path TO gis, public` | PostGIS di schema `public`, yang sudah ada di `search_path` bawaan |
+| Datastore GeoServer | schema `gis` | schema `gis` |
+
+Kolom `schema` pada datastore GeoServer tetap `gis` di kedua lingkungan, dan `POSTGIS_SCHEMA` pada `.env` juga tetap `gis`.
 
 ## Mengosongkan Tabel
 
