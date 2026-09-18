@@ -25,6 +25,16 @@ services:
       - GEOSERVER_ADMIN_PASSWORD=${GEOSERVER_ADMIN_PASSWORD}
       - GEOSERVER_CORS_ENABLED=true
       - GEOSERVER_CORS_ALLOWED_ORIGINS=*
+      # GeoServer memblokir formulir yang Origin-nya tidak dikenal, sebagai
+      # perlindungan CSRF. Karena permintaan melewati Nginx, Origin yang
+      # diterima GeoServer adalah alamat publik, bukan localhost.
+      #
+      # Tanpa daftar ini, pembuatan workspace dan datastore lewat antarmuka
+      # gagal dengan "HTTP Status 400 - Origin does not correspond to request".
+      #
+      # webgisbig.com mencakup seluruh subdomainnya, sehingga satu nilai
+      # berlaku untuk semua peserta.
+      - GEOSERVER_CSRF_WHITELIST=webgisbig.com
     volumes:
       # Volume inilah yang membuat workspace, store, dan layer hasil unggahan
       # bertahan setelah container dibuat ulang.
