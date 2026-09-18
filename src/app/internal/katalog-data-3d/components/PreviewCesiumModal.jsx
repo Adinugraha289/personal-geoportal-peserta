@@ -97,7 +97,12 @@ export default function PreviewCesiumModal({ openPreview, item }) {
                 new Cesium.UrlTemplateImageryProvider({
                     url: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
                     subdomains: ["a", "b", "c"],
-                    credit: "© OpenStreetMap contributors",
+                    // OpenStreetMap berhenti di level 19. Tanpa batas ini, Cesium meminta
+                    // level 20 ke atas saat kamera mendekat, dan OSM menjawab HTTP 400.
+                    // Balasan 400 tidak memuat header CORS, sehingga browser melaporkannya
+                    // sebagai galat CORS, bukan sebagai galat 400.
+                    maximumLevel: 19,
+credit: "© OpenStreetMap contributors",
                 })
             );
 
