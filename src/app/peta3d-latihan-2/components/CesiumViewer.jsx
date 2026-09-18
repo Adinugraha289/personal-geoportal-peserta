@@ -11,7 +11,13 @@ const CESIUM_BASE_URL = `https://cesium.com/downloads/cesiumjs/releases/${CESIUM
 const CESIUM_SCRIPT_URL = `${CESIUM_BASE_URL}Cesium.js`;
 const CESIUM_STYLE_URL = `${CESIUM_BASE_URL}Widgets/widgets.css`;
 
-const CESIUM_ION_TOKEN = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJub25jZSI6IkU4UjdQeC1aNERhWDBZdGQiLCJqdGkiOiI4YTllMzFmYS1kYWQ5LTRmOWEtOWIxNS1kZGUzZmI0YTk4ODEiLCJpZCI6NDc0NjE2LCJzdWIiOiJmemFhMjkiLCJpc3MiOiJodHRwczovL2FwaS5jZXNpdW0uY29tIiwiYXVkIjoibGF0aWhhbiAzRCIsImlhdCI6MTc4NzkzMjkwNX0.dsT6z2uVkDc0uj2P7G0x8XG63c87q7VfyWdOUwKg-zI';
+// Token diambil dari .env saat pengembangan, dan dari build argument saat build
+// Docker lewat substitution variable _CESIUM_ION_TOKEN pada Cloud Build.
+// Lihat NEXT_PUBLIC_CESIUM_ION_TOKEN pada .env.example.
+//
+// Peta dasar dan terrain tetap tampil tanpa token ini, karena keduanya memakai
+// sumber sendiri. Yang membutuhkannya adalah aset 3D Tiles dari Cesium Ion.
+const CESIUM_ION_TOKEN = process.env.NEXT_PUBLIC_CESIUM_ION_TOKEN || '';
 
 const LOKASI_AWAL = {
   latitude: -6.2432495,

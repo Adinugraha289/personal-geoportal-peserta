@@ -14,6 +14,16 @@ WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
+# NextJS menanam nilai NEXT_PUBLIC_* ke dalam berkas hasil build, bukan
+# membacanya saat aplikasi berjalan. Karena .dockerignore mengecualikan .env
+# dari build context, nilai itu harus dikirim sebagai build argument.
+#
+# Cloud Build mengirimnya dari substitution variable _CESIUM_ION_TOKEN.
+# Tanpa nilai, build tetap berjalan dan peta 3D tetap tampil, tetapi aset
+# 3D Tiles dari Cesium Ion tidak dapat dimuat.
+ARG NEXT_PUBLIC_CESIUM_ION_TOKEN=""
+ENV NEXT_PUBLIC_CESIUM_ION_TOKEN=$NEXT_PUBLIC_CESIUM_ION_TOKEN
+
 # Build NextJS untuk production
 ENV NEXT_TELEMETRY_DISABLED 1
 RUN npm run build

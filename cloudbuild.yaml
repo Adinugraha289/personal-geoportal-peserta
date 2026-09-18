@@ -1,15 +1,20 @@
 substitutions:
   _REGION: asia-southeast2
   _REPOSITORY: katalog-images
-  # _IMAGE_NAME, _VM_NAME, dan _VM_ZONE sengaja tidak diberi nilai bawaan.
-  # Ketiganya wajib diisi pada substitution variable trigger. Tanpa nilai bawaan,
-  # build berhenti dengan pesan yang jelas daripada diam-diam memakai satu nama
-  # image bersama dan menimpa image milik asisten lain di Artifact Registry.
+  # _IMAGE_NAME, _VM_NAME, _VM_ZONE, _VM_APP_DIR, dan _CESIUM_ION_TOKEN sengaja
+  # tidak diberi nilai bawaan. Semuanya wajib diisi pada substitution variable
+  # trigger. Tanpa nilai bawaan, build berhenti dengan pesan yang jelas daripada
+  # diam-diam memakai satu nama image bersama dan menimpa image milik asisten
+  # lain di Artifact Registry.
 
 steps:
   - name: gcr.io/cloud-builders/docker
     args:
       - build
+      # Diteruskan ke ARG di Dockerfile, lalu ditanam ke berkas hasil build.
+      # Diperlukan karena komponen peta 3D memakai token ini di sisi klien.
+      - --build-arg
+      - NEXT_PUBLIC_CESIUM_ION_TOKEN=${_CESIUM_ION_TOKEN}
       - -t
       - ${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPOSITORY}/${_IMAGE_NAME}:$SHORT_SHA
       - .
