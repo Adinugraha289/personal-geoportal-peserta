@@ -6,6 +6,15 @@ services:
       - .env
     depends_on:
       - geoserver
+    volumes:
+      # Model 3D yang diunggah disimpan aplikasi ke data/models, dengan working
+      # directory /app di dalam container. Tanpa volume ini, berkasnya berada di
+      # dalam container dan HILANG setiap kali container dibuat ulang.
+      #
+      # Cloud Build menjalankan "docker compose up -d" pada setiap push,
+      # sehingga tanpa volume ini setiap deploy menghapus seluruh model 3D yang
+      # pernah diunggah. Barisnya tetap ada di database, tetapi berkasnya hilang.
+      - ./data:/app/data
     networks:
       - app-network
     restart: unless-stopped
