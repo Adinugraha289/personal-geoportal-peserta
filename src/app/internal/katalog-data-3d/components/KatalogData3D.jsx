@@ -34,6 +34,24 @@ const PreviewCesiumModal = dynamic(
   { ssr: false }
 );
 
+// Nilai awal formulir. Seluruh kolom dideklarasikan di sini supaya tidak ada
+// yang bernilai undefined, dan supaya kolom orientasi model tidak tertinggal.
+//
+// heading, pitch, dan roll adalah tiga sudut yang dipakai Cesium sebagai
+// HeadingPitchRoll. Ketiganya tersimpan di database dan dibaca komponen
+// pratinjau, sehingga ketiganya perlu dapat diisi dari formulir.
+const DEFAULT_FORM = {
+  nama: "",
+  file: null,
+  akses: "public",
+  latitude: "",
+  longitude: "",
+  heading: 0,
+  pitch: 0,
+  roll: 0,
+  scale: 100,
+};
+
 export default function KatalogData3D() {
   // Inisialisasi state awal dengan array kosong
   const [tableData, setTableData] = useState([]);
@@ -44,7 +62,7 @@ export default function KatalogData3D() {
   const [openPreview, setOpenPreview] = useState(false);
   const [openAdd, setOpenAdd] = useState(false);
   const [openDelete, setOpenDelete] = useState(false);
-  const [form, setForm] = useState({ nama: "", file: null, akses: "public" });
+  const [form, setForm] = useState(DEFAULT_FORM);
 
   const session = useSession();
 

@@ -5,6 +5,20 @@ import UploadIcon from "@mui/icons-material/Upload";
 import { useEffect, useRef, useState } from "react";
 import "leaflet/dist/leaflet.css";
 
+// Gaya kolom isian, dipakai seluruh TextField biasa pada formulir ini.
+// Kolom Select pada Akses memakai gayanya sendiri, lihat di bawah.
+const textFieldStyle = {
+    "& .MuiInputBase-input": { color: "#1F2937" },
+    "& .MuiInputLabel-root": { color: "#6B7280" },
+    "& .MuiInputLabel-root.Mui-focused": { color: "#1976D2" },
+    "& .MuiOutlinedInput-root": {
+        "& fieldset": { borderColor: "#BFC5CC" },
+        "&:hover fieldset": { borderColor: "#1976D2" },
+        "&.Mui-focused fieldset": { borderColor: "#1976D2" },
+    },
+    "& .MuiFormHelperText-root": { color: "#6B7280" },
+};
+
 const TambahData = ({ form, setForm, handleCloseCreate, getData, accessToken }) => {
     const mapRef = useRef(null);
     const mapInstanceRef = useRef(null);
@@ -146,16 +160,7 @@ const TambahData = ({ form, setForm, handleCloseCreate, getData, accessToken }) 
                             nama: e.target.value,
                         }))
                     }
-                    sx={{
-                        "& .MuiInputBase-input": { color: "#1F2937" },
-                        "& .MuiInputLabel-root": { color: "#6B7280" },
-                        "& .MuiInputLabel-root.Mui-focused": { color: "#1976D2" },
-                        "& .MuiOutlinedInput-root": {
-                            "& fieldset": { borderColor: "#BFC5CC" },
-                            "&:hover fieldset": { borderColor: "#1976D2" },
-                            "&.Mui-focused fieldset": { borderColor: "#1976D2" },
-                        },
-                    }}
+                    sx={textFieldStyle}
                 />
 
                 {/* Upload File */}
@@ -243,17 +248,7 @@ const TambahData = ({ form, setForm, handleCloseCreate, getData, accessToken }) 
                             }))
                         }
                         helperText="Bilangan bulat. Nilai bawaan 100."
-                        sx={{
-                            "& .MuiInputBase-input": { color: "#1F2937" },
-                            "& .MuiInputLabel-root": { color: "#6B7280" },
-                            "& .MuiInputLabel-root.Mui-focused": { color: "#1976D2" },
-                            "& .MuiOutlinedInput-root": {
-                                "& fieldset": { borderColor: "#BFC5CC" },
-                                "&:hover fieldset": { borderColor: "#1976D2" },
-                                "&.Mui-focused fieldset": { borderColor: "#1976D2" },
-                            },
-                            "& .MuiFormHelperText-root": { color: "#6B7280" },
-                        }}
+                        sx={textFieldStyle}
                     />
 
                     <TextField
@@ -270,17 +265,46 @@ const TambahData = ({ form, setForm, handleCloseCreate, getData, accessToken }) 
                             }))
                         }
                         helperText="Bilangan bulat, 0 sampai 360 derajat."
-                        sx={{
-                            "& .MuiInputBase-input": { color: "#1F2937" },
-                            "& .MuiInputLabel-root": { color: "#6B7280" },
-                            "& .MuiInputLabel-root.Mui-focused": { color: "#1976D2" },
-                            "& .MuiOutlinedInput-root": {
-                                "& fieldset": { borderColor: "#BFC5CC" },
-                                "&:hover fieldset": { borderColor: "#1976D2" },
-                                "&.Mui-focused fieldset": { borderColor: "#1976D2" },
-                            },
-                            "& .MuiFormHelperText-root": { color: "#6B7280" },
-                        }}
+                        sx={textFieldStyle}
+                    />
+                </Box>
+
+                {/* Kemiringan dan putaran model. Keduanya dipakai Cesium sebagai
+                    bagian dari HeadingPitchRoll, dan sudah tersimpan di database
+                    serta dibaca komponen pratinjau. */}
+                <Box sx={{ display: "flex", gap: 2 }}>
+                    <TextField
+                        label="Kemiringan (pitch)"
+                        type="number"
+                        fullWidth
+                        value={form?.pitch ?? 0}
+                        inputProps={{ step: 1, min: -90, max: 90 }}
+                        onChange={(e) =>
+                            setForm &&
+                            setForm((f) => ({
+                                ...f,
+                                pitch: e.target.value,
+                            }))
+                        }
+                        helperText="Bilangan bulat, -90 sampai 90 derajat."
+                        sx={textFieldStyle}
+                    />
+
+                    <TextField
+                        label="Putaran (roll)"
+                        type="number"
+                        fullWidth
+                        value={form?.roll ?? 0}
+                        inputProps={{ step: 1, min: -180, max: 180 }}
+                        onChange={(e) =>
+                            setForm &&
+                            setForm((f) => ({
+                                ...f,
+                                roll: e.target.value,
+                            }))
+                        }
+                        helperText="Bilangan bulat, -180 sampai 180 derajat."
+                        sx={textFieldStyle}
                     />
                 </Box>
 
